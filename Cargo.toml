@@ -11,5 +11,16 @@ opt-level = 1
 [profile.dev.package."*"]
 opt-level = 3
 
+[profile.release]
+lto = true
+codegen-units = 1
+
+[features]
+dev = [
+    "bevy/dynamic",
+]
+
 [dependencies]
 bevy = "0.9.1"
+bevy_asset_loader = "0.14.1"
+bevy_rapier2d = "0.20.0"
