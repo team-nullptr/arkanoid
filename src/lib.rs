@@ -1,7 +1,9 @@
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::*;
 
 mod actions;
 mod assets;
+mod ball;
 mod camera;
 mod cursor;
 mod paddle;
@@ -31,11 +33,13 @@ impl Plugin for ArkanoidPlugin {
                 },
                 ..default()
             }))
+            .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(4.))
             .add_plugin(camera::CameraPlugin)
             .add_plugin(actions::ActionsPlugin)
             .add_plugin(cursor::CursorPlugin)
             .add_plugin(assets::AssetPlugin)
             .add_plugin(paddle::PaddlePlugin)
+            .add_plugin(ball::BallPlugin)
             .add_state(GameState::Loading);
     }
 }

@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::*;
 
 use crate::{
     actions::Actions, assets::TextureAssets, cursor::FollowCursor, util::cleanup, GameState,
@@ -11,10 +12,26 @@ pub struct PaddlePlugin;
 
 impl Plugin for PaddlePlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(SystemSet::on_enter(GameState::Playing).with_system(paddle_setup))
-            .add_system_set(SystemSet::on_update(GameState::Playing).with_system(paddle_movement))
-            .add_system_set(SystemSet::on_exit(GameState::Playing).with_system(cleanup::<Paddle>));
+        app.add_system_set(
+            SystemSet::on_enter(GameState::Playing)
+                .with_system(paddle_setup.label(PaddleSystem::Setup)),
+        )
+        .add_system_set(
+            SystemSet::on_update(GameState::Playing)
+                .with_system(paddle_movement.label(PaddleSystem::Movement)),
+        )
+        .add_system_set(
+            SystemSet::on_exit(GameState::Playing)
+                .with_system(cleanup::<Paddle>.label(PaddleSystem::Cleanup)),
+        );
     }
+}
+
+#[derive(SystemLabel, Debug, Hash, PartialEq, Eq, Copy, Clone)]
+pub enum PaddleSystem {
+    Setup,
+    Movement,
+    Cleanup,
 }
 
 #[derive(Component, Default, Copy, Clone, Eq, PartialEq, Debug, Hash)]
@@ -23,28 +40,38 @@ pub struct Paddle;
 #[derive(Bundle, Default)]
 struct PaddleBundle {
     paddle: Paddle,
+    collider: Collider,
     #[bundle]
     sprite: SpriteBundle,
 }
 
-fn paddle_setup(mut commands: Commands, texture_assets: Res<TextureAssets>) {
+fn paddle_setup(
+    mut commands: Commands,
+    texture_assets: Res<TextureAssets>,
+    images: Res<Assets<Image>>,
+) {
+    let image = images
+        .get(&texture_assets.paddle)
+        .expect("Paddle texture not loaded yet!");
+    let paddle_size = image.size();
+
     commands.spawn(PaddleBundle {
         sprite: SpriteBundle {
-            transform: Transform::from_xyz(0.0, PADDLE_ALTITUDE, 1.0).with_scale(Vec3::splat(2.)),
+            transform: Transform::from_xyz(0.0, PADDLE_ALTITUDE, 1.0).with_scale(Vec3::splat(0.25)),
             texture: texture_assets.paddle.clone(),
             ..default()
         },
-		..default()
+        collider: Collider::cuboid(paddle_size.x / 2., paddle_size.y / 2.),
+        ..default()
     });
 }
 
 fn paddle_movement(
-    mut paddle_query: Query<(&mut Transform, &Handle<Image>), With<Paddle>>,
+    mut paddle_query: Query<(&mut Transform, &Collider), With<Paddle>>,
     cursor_query: Query<&Transform, (With<FollowCursor>, Without<Paddle>, Changed<Transform>)>,
     actions: Res<Actions>,
     time: Res<Time>,
-	windows: Res<Windows>,
-	images: Res<Assets<Image>>,
+    windows: Res<Windows>,
 ) {
     let cursor_position = if let Ok(transform) = cursor_query.get_single() {
         Some(transform.translation)
@@ -52,9 +79,9 @@ fn paddle_movement(
         None
     };
 
-	let window = windows.get_primary().expect("No application window found!");
+    let window = windows.get_primary().expect("No application window found!");
 
-    for (mut paddle_transform, paddle_texture) in paddle_query.iter_mut() {
+    for (mut paddle_transform, paddle_collider) in paddle_query.iter_mut() {
         if let Some(cursor_position) = cursor_position {
             paddle_transform.translation.x = cursor_position.x;
         }
@@ -63,10 +90,12 @@ fn paddle_movement(
 
         paddle_transform.translation.x += direction * PADDLE_SPEED * time.delta_seconds();
 
-		let image = images.get(paddle_texture).unwrap();
-		let width = image.size().x * paddle_transform.scale.x;
-		let bound = (window.width() - width) / 2.;
+        let bound = window.width() / 2. - paddle_collider.as_cuboid().expect("The paddle collider is not a cuboid!").half_extents().x;
 
-		paddle_transform.translation.x = paddle_transform.translation.x.clamp(-bound, bound);
+        if bound < 0. {
+            panic!("Paddle is too big for the window!");
+        }
+
+        paddle_transform.translation.x = paddle_transform.translation.x.clamp(-bound, bound);
     }
 }

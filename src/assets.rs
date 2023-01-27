@@ -25,7 +25,8 @@ pub struct AudioAssets {}
 
 #[derive(AssetCollection, Resource)]
 pub struct TextureAssets {
-    // TODO: Make a new sprite for the paddle
     #[asset(path = "img/paddle.png")]
     pub paddle: Handle<Image>,
+    #[asset(path = "img/ball.png")]
+    pub ball: Handle<Image>,
 }
