@@ -133,13 +133,13 @@ fn ball_movement(
                     // Find the collision point
                     let collision_point = transform.translation.truncate() + move_vector * hit.toi;
 
-                    // Make sure the ball is above the paddle
-                    if collision_point.y <= transform.translation.y {
-                        // Find the paddle's position and size
-                        let (paddle_transform, paddle_collider) = paddle_query.get(entity).unwrap();
-                        let paddle_center = paddle_transform.translation.truncate();
-                        let paddle_extents = paddle_collider.as_cuboid().unwrap().half_extents();
+                    // Find the paddle's position and size
+                    let (paddle_transform, paddle_collider) = paddle_query.get(entity).unwrap();
+                    let paddle_center = paddle_transform.translation.truncate();
+                    let paddle_extents = paddle_collider.as_cuboid().unwrap().half_extents();
 
+                    // Make sure the ball is above the paddle
+                    if collision_point.y >= paddle_center.y + paddle_extents.y {
                         // Find the percentage of the paddle that the ball hit
                         let percentage = (collision_point.x - paddle_center.x) / paddle_extents.x;
 
@@ -147,7 +147,7 @@ fn ball_movement(
                         ball.direction = Vec2::new(percentage / 2., 1.0).normalize();
 
                         // Move the ball to the correct position
-                        destination = collision_point.extend(0.0) + Vec3::new(0.0, 1., 0.0);
+                        destination = Vec3::new(collision_point.x, paddle_center.y + paddle_extents.y + ball_radius + 1., 0.0);
                     }
                 }
 
