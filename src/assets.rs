@@ -6,7 +6,7 @@ use crate::GameState;
 pub struct AssetPlugin;
 
 impl Plugin for AssetPlugin {
-	fn build(&self, app: &mut App) {
+    fn build(&self, app: &mut App) {
         app.add_loading_state(
             LoadingState::new(GameState::Loading)
                 .with_collection::<FontAssets>()
@@ -29,4 +29,7 @@ pub struct TextureAssets {
     pub paddle: Handle<Image>,
     #[asset(path = "img/ball.png")]
     pub ball: Handle<Image>,
+    #[asset(path = "img/block.png")]
+    pub block: Handle<Image>,
 }
+
