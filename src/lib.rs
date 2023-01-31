@@ -1,9 +1,11 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
+use block::BlockPlugin;
 
 mod actions;
 mod assets;
 mod ball;
+mod block;
 mod camera;
 mod cursor;
 mod paddle;
@@ -20,8 +22,7 @@ pub struct ArkanoidPlugin;
 
 impl Plugin for ArkanoidPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .insert_resource(ClearColor(Color::rgb(0.4, 0.4, 0.4)))
+        app.insert_resource(ClearColor(Color::rgb(0.4, 0.4, 0.4)))
             .add_plugins(DefaultPlugins.set(WindowPlugin {
                 window: WindowDescriptor {
                     title: "Arkanoid".to_string(),
@@ -40,6 +41,7 @@ impl Plugin for ArkanoidPlugin {
             .add_plugin(assets::AssetPlugin)
             .add_plugin(paddle::PaddlePlugin)
             .add_plugin(ball::BallPlugin)
+            .add_plugin(BlockPlugin)
             .add_state(GameState::Loading);
     }
 }
