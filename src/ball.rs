@@ -4,6 +4,7 @@ use bevy_rapier2d::prelude::*;
 use crate::{
     actions::Actions,
     assets::TextureAssets,
+    block::Block,
     paddle::{Paddle, PaddleSystem},
     util::cleanup,
     GameState,
@@ -79,7 +80,8 @@ fn ball_setup(
 
 fn ball_movement(
     mut ball_query: Query<(&mut Ball, &Collider, &mut Transform)>,
-    paddle_query: Query<(&Transform, &Collider), (With<Paddle>, Without<Ball>)>,
+    paddle_query: Query<(&Transform, &Collider), (With<Paddle>, Without<Block>, Without<Ball>)>,
+    block_query: Query<(&Transform, &Collider), (With<Block>, Without<Paddle>, Without<Ball>)>,
     time: Res<Time>,
     windows: Res<Windows>,
     rapier_context: Res<RapierContext>,
@@ -121,13 +123,20 @@ fn ball_movement(
                     ball.direction.x = -ball.direction.x;
                 }
 
+                // Utility to cast the collider
+                let check_collider = |filter: QueryFilter| {
+                    rapier_context.cast_shape(
+                        transform.translation.truncate(),
+                        0.,
+                        move_vector,
+                        collider,
+                        1.,
+                        filter,
+                    )
+                };
+
                 // Bounce off the paddle
-                if let Some((entity, hit)) = rapier_context.cast_shape(
-                    transform.translation.truncate(),
-                    0.,
-                    move_vector,
-                    collider,
-                    1.,
+                if let Some((entity, hit)) = check_collider(
                     QueryFilter::default().predicate(&|entity| paddle_query.get(entity).is_ok()),
                 ) {
                     // Find the collision point
@@ -147,7 +156,50 @@ fn ball_movement(
                         ball.direction = Vec2::new(percentage / 2., 1.0).normalize();
 
                         // Move the ball to the correct position
-                        destination = Vec3::new(collision_point.x, paddle_center.y + paddle_extents.y + ball_radius + 1., 0.0);
+                        destination = Vec3::new(
+                            collision_point.x,
+                            paddle_center.y + paddle_extents.y + ball_radius + 1.,
+                            0.0,
+                        );
+                    }
+                }
+
+                if let Some((entity, hit)) = check_collider(
+                    QueryFilter::default().predicate(&|entity| block_query.get(entity).is_ok()),
+                ) {
+                    // Get the collision point
+                    let collision_point = transform.translation.truncate() + move_vector * hit.toi;
+
+                    // Get position of the block and it's size
+                    let (block_transform, block_collider) = block_query.get(entity).unwrap();
+                    let block_center = block_transform.translation.truncate();
+                    let block_extents = block_collider.as_cuboid().unwrap().half_extents();
+
+                    // Handle y bounce
+                    if collision_point.y <= block_center.y - block_extents.y
+                        || collision_point.y >= block_center.y + block_extents.y
+                    {
+                        // Calculate the direction
+                        ball.direction = Vec2::new(ball.direction.x, -ball.direction.y).normalize();
+
+                        // Move the ball
+                        destination = Vec3::new(
+                            collision_point.x,
+                            collision_point.y + ball.direction.y / ball.direction.y.abs(),
+                            0.0,
+                        );
+                    } else if collision_point.x <= block_center.x - block_extents.x
+                        || collision_point.x >= block_center.x + block_extents.x
+                    {
+                        // Calculate the bounce direction
+                        ball.direction = Vec2::new(-ball.direction.x, ball.direction.y).normalize();
+    
+                        // Move the ball
+                        destination = Vec3::new(
+                            collision_point.x + ball.direction.x / ball.direction.x.abs(),
+                            collision_point.y,
+                            0.,
+                        );
                     }
                 }
 
