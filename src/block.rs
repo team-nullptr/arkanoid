@@ -1,4 +1,4 @@
-use crate::{assets::TextureAssets, GameState};
+use crate::{assets::TextureAssets, util::cleanup, GameState};
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
@@ -6,7 +6,8 @@ pub struct BlockPlugin;
 
 impl Plugin for BlockPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(SystemSet::on_enter(GameState::Playing).with_system(spawn_block));
+        app.add_system_set(SystemSet::on_enter(GameState::Playing).with_system(spawn_block))
+            .add_system_set(SystemSet::on_exit(GameState::Playing).with_system(cleanup::<Block>));
     }
 }
 
