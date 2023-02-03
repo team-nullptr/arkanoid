@@ -16,7 +16,8 @@ pub struct BallPlugin;
 
 impl Plugin for BallPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(SystemSet::on_enter(GameState::Playing).with_system(ball_setup))
+        app.add_event::<BlockHitEvent>()
+            .add_system_set(SystemSet::on_enter(GameState::Playing).with_system(ball_setup))
             .add_system_set(
                 SystemSet::on_update(GameState::Playing)
                     .with_system(ball_movement)
@@ -52,6 +53,9 @@ struct BallBundle {
     sprite: SpriteBundle,
 }
 
+#[derive(Copy, Clone, PartialEq, Debug)]
+pub struct BlockHitEvent(pub Entity);
+
 fn ball_setup(
     mut commands: Commands,
     texture_assets: Res<TextureAssets>,
@@ -85,6 +89,7 @@ fn ball_movement(
     time: Res<Time>,
     windows: Res<Windows>,
     rapier_context: Res<RapierContext>,
+    mut hit_block_event_writer: EventWriter<BlockHitEvent>,
 ) {
     let window = windows.get_primary().expect("No primary window found.");
 
@@ -164,6 +169,7 @@ fn ball_movement(
                     }
                 }
 
+                // Collide with blocks
                 if let Some((entity, hit)) = check_collider(
                     QueryFilter::default().predicate(&|entity| block_query.get(entity).is_ok()),
                 ) {
@@ -201,6 +207,9 @@ fn ball_movement(
                             0.,
                         );
                     }
+
+                    // Send out the hit event
+                    hit_block_event_writer.send(BlockHitEvent(entity));
                 }
 
                 transform.translation = destination;
