@@ -5,7 +5,7 @@ use crate::{
     actions::Actions,
     assets::TextureAssets,
     block::Block,
-    paddle::{Paddle, PaddleSystem},
+    paddle::{Paddle, PaddleSystem, PADDLE_ALTITUDE},
     util::cleanup,
     GameState,
 };
@@ -21,6 +21,7 @@ impl Plugin for BallPlugin {
             .add_system_set(
                 SystemSet::on_update(GameState::Playing)
                     .with_system(ball_movement)
+                    .with_system(lose_condition)
                     .after(PaddleSystem::Movement)
                     .with_system(ball_control),
             )
@@ -169,7 +170,7 @@ fn ball_movement(
                     }
                 }
 
-                // Collide with blocks
+                // Bounce off the block
                 if let Some((entity, hit)) = check_collider(
                     QueryFilter::default().predicate(&|entity| block_query.get(entity).is_ok()),
                 ) {
@@ -199,7 +200,7 @@ fn ball_movement(
                     {
                         // Calculate the bounce direction
                         ball.direction = Vec2::new(-ball.direction.x, ball.direction.y).normalize();
-    
+
                         // Move the ball
                         destination = Vec3::new(
                             collision_point.x + ball.direction.x / ball.direction.x.abs(),
@@ -215,6 +216,14 @@ fn ball_movement(
                 transform.translation = destination;
             }
         }
+    }
+}
+
+fn lose_condition(mut state: ResMut<State<GameState>>, ball_query: Query<&Transform, With<Ball>>) {
+    let transform = ball_query.single();
+
+    if transform.translation.y < PADDLE_ALTITUDE - 50. {
+        if state.set(GameState::Menu).is_err() {}
     }
 }
 
