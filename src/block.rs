@@ -88,7 +88,7 @@ fn spawn_block(mut commands: Commands, textures: Res<TextureAssets>, images: Res
 
     let blocks_dims = Vec2::new(
         (blocks_count.x - 1) as f32 * (block_size.x + block_margin.x),
-        (blocks_count.y - 1) as f32 * (block_size.y + block_margin.y)
+        (blocks_count.y - 1) as f32 * (block_size.y + block_margin.y),
     );
 
     for i in 0..blocks_count.x {
