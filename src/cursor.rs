@@ -33,6 +33,6 @@ fn follow_cursor(
 
     for mut transform in cursor_followers.iter_mut() {
         transform.translation =
-            cursor_position - Vec3::new(window.width() as f32, window.height() as f32, 0.) / 2.;
+            cursor_position - Vec3::new(window.width(), window.height(), 0.) / 2.;
     }
 }

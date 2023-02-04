@@ -24,10 +24,10 @@ pub enum BlockType {
     Gold,
 }
 
-impl Into<Color> for BlockType {
-    fn into(self) -> Color {
+impl From<BlockType> for Color {
+    fn from(val: BlockType) -> Self {
         // TODO: Improve the silver and gold colors
-        match self {
+        match val {
             BlockType::Orange => Color::hex("ff870f").unwrap(),
             BlockType::LightBlue => Color::hex("0fffc3").unwrap(),
             BlockType::Green => Color::hex("219c0b").unwrap(),
