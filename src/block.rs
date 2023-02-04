@@ -1,4 +1,4 @@
-use crate::{assets::TextureAssets, GameState, util::cleanup, ball::BlockHitEvent};
+use crate::{assets::TextureAssets, ball::BlockHitEvent, util::cleanup, GameState};
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
@@ -20,23 +20,22 @@ pub enum BlockType {
     Red,
     Blue,
     Pink,
-    Silver {
-        hits_taken: u32,
-    },
+    Silver { hits_taken: u32 },
     Gold,
 }
 
 impl Into<Color> for BlockType {
     fn into(self) -> Color {
+        // TODO: Improve the silver and gold colors
         match self {
-            BlockType::Orange => Color::rgb(1.0, 0.5, 0.0),
-            BlockType::LightBlue => Color::rgb(0.0, 0.5, 1.0),
-            BlockType::Green => Color::rgb(0.0, 1.0, 0.0),
-            BlockType::Red => Color::rgb(1.0, 0.0, 0.0),
-            BlockType::Blue => Color::rgb(0.0, 0.0, 1.0),
-            BlockType::Pink => Color::rgb(1.0, 0.0, 1.0),
-            BlockType::Silver { .. } => Color::rgb(0.75, 0.75, 0.75),
-            BlockType::Gold => Color::rgb(1.0, 0.75, 0.0),
+            BlockType::Orange => Color::hex("ff870f").unwrap(),
+            BlockType::LightBlue => Color::hex("0fffc3").unwrap(),
+            BlockType::Green => Color::hex("219c0b").unwrap(),
+            BlockType::Red => Color::hex("a8180d").unwrap(),
+            BlockType::Blue => Color::hex("0a13ad").unwrap(),
+            BlockType::Pink => Color::hex("c016c9").unwrap(),
+            BlockType::Silver { .. } => Color::hex("d9cebd").unwrap(),
+            BlockType::Gold => Color::hex("face1e").unwrap(),
         }
     }
 }
@@ -54,27 +53,69 @@ pub struct BlockBundle {
     sprite: SpriteBundle,
 }
 
+impl BlockBundle {
+    fn new(block_type: BlockType, block_size: &Vec2, texture: Handle<Image>) -> Self {
+        Self {
+            block: Block { block_type },
+            collider: Collider::cuboid(block_size.x, block_size.y),
+            sprite: SpriteBundle {
+                texture,
+                transform: Transform::from_scale(Vec3::splat(0.25)),
+                sprite: Sprite {
+                    color: block_type.into(),
+                    ..default()
+                },
+                ..default()
+            },
+        }
+    }
+
+    fn with_pos(mut self, pos: Vec2) -> Self {
+        self.sprite.transform.translation = pos.extend(0.0);
+        self
+    }
+}
+
 fn spawn_block(mut commands: Commands, textures: Res<TextureAssets>, images: Res<Assets<Image>>) {
     let block_image = images
         .get(&textures.block)
         .expect("Block texture is not loaded");
 
-    let block_size = block_image.size();
+    let block_size = block_image.size() / 2.;
 
-    commands.spawn(BlockBundle {
-        block: Block {
-            block_type: BlockType::Orange,
-        },
-        sprite: SpriteBundle {
-            texture: textures.block.clone(),
-            transform: Transform::from_scale(Vec3::splat(0.25)),
-            ..default()
-        },
-        collider: Collider::cuboid(block_size.x / 2.0, block_size.y / 2.0),
-    });
+    let blocks_count = IVec2::new(3, 4);
+    let block_margin = Vec2::new(5., 5.);
+
+    let blocks_dims = Vec2::new(
+        (blocks_count.x - 1) as f32 * (block_size.x + block_margin.x),
+        (blocks_count.y - 1) as f32 * (block_size.y + block_margin.y)
+    );
+
+    for i in 0..blocks_count.x {
+        for j in 0..blocks_count.y {
+            let block_type = match j {
+                0 => BlockType::Gold,
+                1 => BlockType::Silver { hits_taken: 0 },
+                _ => BlockType::Orange,
+            };
+
+            commands.spawn(
+                BlockBundle::new(block_type, &block_size, textures.block.clone()).with_pos(
+                    Vec2::new(
+                        (i + 1) as f32 * (block_size.x / 2. + block_margin.x) - blocks_dims.x / 2.,
+                        -(j + 1) as f32 * (block_size.y / 2. + block_margin.y) + blocks_dims.y / 2.,
+                    ),
+                ),
+            );
+        }
+    }
 }
 
-fn destroy_blocks(mut commands: Commands, mut blocks: Query<&mut Block>, mut events: EventReader<BlockHitEvent>) {
+fn destroy_blocks(
+    mut commands: Commands,
+    mut blocks: Query<&mut Block>,
+    mut events: EventReader<BlockHitEvent>,
+) {
     for event in events.iter() {
         if let Ok(block) = blocks.get(event.0) {
             match block.block_type {
@@ -85,9 +126,10 @@ fn destroy_blocks(mut commands: Commands, mut blocks: Query<&mut Block>, mut eve
                     if hits_taken >= 2 {
                         commands.entity(event.0).despawn_recursive();
                     } else {
-                        blocks.get_mut(event.0).unwrap().block_type = BlockType::Silver { hits_taken };
+                        blocks.get_mut(event.0).unwrap().block_type =
+                            BlockType::Silver { hits_taken };
                     }
-                },
+                }
                 BlockType::Gold => (),
                 _ => commands.entity(event.0).despawn_recursive(),
             }
