@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use block::BlockPlugin;
 
+mod menu;
 mod actions;
 mod assets;
 mod ball;
@@ -41,6 +42,7 @@ impl Plugin for ArkanoidPlugin {
             .add_plugin(assets::AssetPlugin)
             .add_plugin(paddle::PaddlePlugin)
             .add_plugin(ball::BallPlugin)
+            .add_plugin(menu::MenuPlugin)
             .add_plugin(BlockPlugin)
             .add_state(GameState::Loading);
     }

@@ -98,4 +98,4 @@ fn paddle_movement(
 
         paddle_transform.translation.x = paddle_transform.translation.x.clamp(-bound, bound);
     }
-}
+} 

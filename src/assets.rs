@@ -12,13 +12,16 @@ impl Plugin for AssetPlugin {
                 .with_collection::<FontAssets>()
                 .with_collection::<AudioAssets>()
                 .with_collection::<TextureAssets>()
-                .continue_to_state(GameState::Playing),
+                .continue_to_state(GameState::Menu),
         );
     }
 }
 
 #[derive(AssetCollection, Resource)]
-pub struct FontAssets {}
+pub struct FontAssets {
+    #[asset(path = "fonts/Unbounded-Medium.ttf")]
+    pub title_font: Handle<Font>,
+}
 
 #[derive(AssetCollection, Resource)]
 pub struct AudioAssets {}
@@ -32,4 +35,3 @@ pub struct TextureAssets {
     #[asset(path = "img/block.png")]
     pub block: Handle<Image>,
 }
-
