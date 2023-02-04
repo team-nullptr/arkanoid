@@ -77,9 +77,8 @@ fn play_button_interaction(
     mut state: ResMut<State<GameState>>,
 ) {
     for interaction in &mut interaction_query {
-        match *interaction {
-            Interaction::Clicked => state.set(GameState::Playing).unwrap(),
-            _ => {}
+        if *interaction == Interaction::Clicked {
+            let _ = state.set(GameState::Playing);
         }
     }
 }

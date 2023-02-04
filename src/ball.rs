@@ -227,9 +227,7 @@ fn lose_condition(
     let window = windows.get_primary().expect("Primary window not found");
     let transform = ball_query.single();
 
-    if transform.translation.y < -(window.height() / 2.) {
-        if state.set(GameState::Menu).is_err() {}
-    }
+    if transform.translation.y < -(window.height() / 2.) && state.set(GameState::Menu).is_err() {}
 }
 
 fn ball_control(mut ball_query: Query<&mut Ball>, actions: Res<Actions>) {

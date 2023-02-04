@@ -24,10 +24,10 @@ pub enum BlockType {
     Gold,
 }
 
-impl Into<Color> for BlockType {
-    fn into(self) -> Color {
+impl From<BlockType> for Color {
+    fn from(val: BlockType) -> Self {
         // TODO: Improve the silver and gold colors
-        match self {
+        match val {
             BlockType::Orange => Color::hex("ff870f").unwrap(),
             BlockType::LightBlue => Color::hex("0fffc3").unwrap(),
             BlockType::Green => Color::hex("219c0b").unwrap(),
@@ -88,7 +88,7 @@ fn spawn_block(mut commands: Commands, textures: Res<TextureAssets>, images: Res
 
     let blocks_dims = Vec2::new(
         (blocks_count.x - 1) as f32 * (block_size.x + block_margin.x),
-        (blocks_count.y - 1) as f32 * (block_size.y + block_margin.y)
+        (blocks_count.y - 1) as f32 * (block_size.y + block_margin.y),
     );
 
     for i in 0..blocks_count.x {

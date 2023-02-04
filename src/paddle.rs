@@ -90,7 +90,12 @@ fn paddle_movement(
 
         paddle_transform.translation.x += direction * PADDLE_SPEED * time.delta_seconds();
 
-        let bound = window.width() / 2. - paddle_collider.as_cuboid().expect("The paddle collider is not a cuboid!").half_extents().x;
+        let bound = window.width() / 2.
+            - paddle_collider
+                .as_cuboid()
+                .expect("The paddle collider is not a cuboid!")
+                .half_extents()
+                .x;
 
         if bound < 0. {
             panic!("Paddle is too big for the window!");
@@ -98,4 +103,4 @@ fn paddle_movement(
 
         paddle_transform.translation.x = paddle_transform.translation.x.clamp(-bound, bound);
     }
-} 
+}

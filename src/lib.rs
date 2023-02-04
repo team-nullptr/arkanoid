@@ -2,13 +2,13 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use block::BlockPlugin;
 
-mod menu;
 mod actions;
 mod assets;
 mod ball;
 mod block;
 mod camera;
 mod cursor;
+mod menu;
 mod paddle;
 mod util;
 
