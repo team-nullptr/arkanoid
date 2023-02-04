@@ -5,7 +5,7 @@ use crate::{
     actions::Actions,
     assets::TextureAssets,
     block::Block,
-    paddle::{Paddle, PaddleSystem, PADDLE_ALTITUDE},
+    paddle::{Paddle, PaddleSystem},
     util::cleanup,
     GameState,
 };
@@ -219,10 +219,15 @@ fn ball_movement(
     }
 }
 
-fn lose_condition(mut state: ResMut<State<GameState>>, ball_query: Query<&Transform, With<Ball>>) {
+fn lose_condition(
+    mut state: ResMut<State<GameState>>,
+    ball_query: Query<&Transform, With<Ball>>,
+    windows: Res<Windows>,
+) {
+    let window = windows.get_primary().expect("Primary window not found");
     let transform = ball_query.single();
 
-    if transform.translation.y < PADDLE_ALTITUDE - 50. {
+    if transform.translation.y < -(window.height() / 2.) {
         if state.set(GameState::Menu).is_err() {}
     }
 }

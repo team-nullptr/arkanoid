@@ -1,4 +1,4 @@
-use crate::{assets::TextureAssets, GameState, util::cleanup, ball::BlockHitEvent};
+use crate::{assets::TextureAssets, ball::BlockHitEvent, util::cleanup, GameState};
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
@@ -20,9 +20,7 @@ pub enum BlockType {
     Red,
     Blue,
     Pink,
-    Silver {
-        hits_taken: u32,
-    },
+    Silver { hits_taken: u32 },
     Gold,
 }
 
@@ -74,7 +72,11 @@ fn spawn_block(mut commands: Commands, textures: Res<TextureAssets>, images: Res
     });
 }
 
-fn destroy_blocks(mut commands: Commands, mut blocks: Query<&mut Block>, mut events: EventReader<BlockHitEvent>) {
+fn destroy_blocks(
+    mut commands: Commands,
+    mut blocks: Query<&mut Block>,
+    mut events: EventReader<BlockHitEvent>,
+) {
     for event in events.iter() {
         if let Ok(block) = blocks.get(event.0) {
             match block.block_type {
@@ -85,9 +87,10 @@ fn destroy_blocks(mut commands: Commands, mut blocks: Query<&mut Block>, mut eve
                     if hits_taken >= 2 {
                         commands.entity(event.0).despawn_recursive();
                     } else {
-                        blocks.get_mut(event.0).unwrap().block_type = BlockType::Silver { hits_taken };
+                        blocks.get_mut(event.0).unwrap().block_type =
+                            BlockType::Silver { hits_taken };
                     }
-                },
+                }
                 BlockType::Gold => (),
                 _ => commands.entity(event.0).despawn_recursive(),
             }
