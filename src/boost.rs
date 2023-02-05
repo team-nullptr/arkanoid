@@ -1,26 +1,21 @@
 use crate::{assets::TextureAssets, paddle::Paddle, GameState};
 use bevy::prelude::*;
-use bevy::sprite::collide_aabb::collide;
 use bevy_rapier2d::prelude::*;
-
-// This could be but inside of a boost or a boost type later.
-pub const DEFAULT_BOOST_SPEED: f32 = 150.;
 
 pub struct BoostPlugin;
 
 impl Plugin for BoostPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set(SystemSet::on_enter(GameState::Playing).with_system(boost_setup))
-            .add_system_set(
-                SystemSet::on_update(GameState::Playing)
-                    .with_system(boost_movement)
-                    .with_system(boost_picker),
-            );
+            .add_system_set(SystemSet::on_update(GameState::Playing).with_system(boost_movement));
     }
 }
 
 #[derive(Component)]
-pub struct Boost;
+pub struct Boost {
+    pub name: String,
+    pub speed: f32,
+}
 
 #[derive(Bundle)]
 pub struct BoostBundle {
@@ -33,7 +28,10 @@ pub struct BoostBundle {
 impl BoostBundle {
     fn new(texture: Handle<Image>, boost_size: &Vec2) -> Self {
         Self {
-            boost: Boost,
+            boost: Boost {
+                name: "test".to_string(),
+                speed: 150.,
+            },
             sprite: SpriteBundle {
                 texture,
                 transform: Transform::from_translation(Vec3::new(0., 200., 0.)),
@@ -55,28 +53,30 @@ fn boost_setup(mut commands: Commands, textures: Res<TextureAssets>, images: Res
     ));
 }
 
-fn boost_movement(mut boost_query: Query<&mut Transform, With<Boost>>, time: Res<Time>) {
-    for mut transform in boost_query.iter_mut() {
-        transform.translation.y -= time.delta_seconds() * DEFAULT_BOOST_SPEED;
-    }
-}
-
-// This probably can be done easier with rapier events or something
-// FIXME: Look into rapier things
-fn boost_picker(
+fn boost_movement(
+    mut commands: Commands,
+    mut boost_query: Query<(&mut Transform, &Boost)>,
+    time: Res<Time>,
     paddle_query: Query<(&Collider, &Transform), (With<Paddle>, Without<Boost>)>,
-    boost_query: Query<(&Collider, &Transform), (With<Boost>, Without<Paddle>)>,
+    rapier_context: Res<RapierContext>,
 ) {
-    let (paddle_collider, paddle_transform) = paddle_query.get_single().expect("Paddle not found");
+    // Check for boost collision
+    let (paddle_collider, paddle_transform) = paddle_query.single();
 
-    for (boost_collider, boost_transform) in boost_query.iter() {
-        if collide(
-            boost_transform.translation,
-            boost_collider.as_cuboid().unwrap().half_extents(),
-            paddle_transform.translation,
-            paddle_collider.as_cuboid().unwrap().half_extents(),
-        ).is_some() {
-            println!("boost picked");
-        }
+    if let Some((entity, _)) = rapier_context.cast_shape(
+        paddle_transform.translation.truncate(),
+        0.,
+        Vec2::new(0., -1.),
+        paddle_collider,
+        1.,
+        QueryFilter::default().predicate(&|entity| boost_query.get(entity).is_ok()),
+    ) {
+        // TODO: apply boost effect or sth
+        commands.entity(entity).despawn_recursive();
+    }
+
+    // Free fall
+    for (mut transform, boost) in boost_query.iter_mut() {
+        transform.translation.y -= time.delta_seconds() * boost.speed;
     }
 }
