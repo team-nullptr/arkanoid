@@ -5,12 +5,12 @@ mod actions;
 mod assets;
 mod ball;
 mod block;
+mod boost;
 mod camera;
 mod cursor;
 mod menu;
 mod paddle;
 mod util;
-mod boost;
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash)]
 enum GameState {
