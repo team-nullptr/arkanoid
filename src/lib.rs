@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
-use block::BlockPlugin;
 
 mod actions;
 mod assets;
@@ -11,6 +10,7 @@ mod cursor;
 mod menu;
 mod paddle;
 mod util;
+mod boost;
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash)]
 enum GameState {
@@ -43,7 +43,8 @@ impl Plugin for ArkanoidPlugin {
             .add_plugin(paddle::PaddlePlugin)
             .add_plugin(ball::BallPlugin)
             .add_plugin(menu::MenuPlugin)
-            .add_plugin(BlockPlugin)
+            .add_plugin(block::BlockPlugin)
+            .add_plugin(boost::BoostPlugin)
             .add_state(GameState::Loading);
     }
 }

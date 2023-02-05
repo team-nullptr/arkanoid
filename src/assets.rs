@@ -34,4 +34,6 @@ pub struct TextureAssets {
     pub ball: Handle<Image>,
     #[asset(path = "img/block.png")]
     pub block: Handle<Image>,
+    #[asset(path = "img/boost.png")]
+    pub boost: Handle<Image>
 }
