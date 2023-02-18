@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    actions::Actions, assets::TextureAssets, cursor::FollowCursor, util::cleanup, GameState,
+    actions::Actions, assets::TextureAssets, cursor::FollowCursor, util::cleanup, GameState, lives::Lives,
 };
 
 pub const PADDLE_SPEED: f32 = 500.0;
@@ -40,6 +40,7 @@ pub struct Paddle;
 #[derive(Bundle, Default)]
 struct PaddleBundle {
     paddle: Paddle,
+    lives: Lives,
     collider: Collider,
     #[bundle]
     sprite: SpriteBundle,

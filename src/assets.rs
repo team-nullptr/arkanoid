@@ -32,6 +32,8 @@ pub struct TextureAssets {
     pub paddle: Handle<Image>,
     #[asset(path = "img/ball.png")]
     pub ball: Handle<Image>,
+    #[asset(path = "img/ball_small.png")]
+    pub ball_small: Handle<Image>,
     #[asset(path = "img/block.png")]
     pub block: Handle<Image>,
 }

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_rapier2d::prelude::*;
-use block::BlockPlugin;
 
 mod actions;
 mod assets;
@@ -8,8 +8,10 @@ mod ball;
 mod block;
 mod camera;
 mod cursor;
+mod lives;
 mod menu;
 mod paddle;
+mod ui;
 mod util;
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash)]
@@ -36,14 +38,17 @@ impl Plugin for ArkanoidPlugin {
                 ..default()
             }))
             .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(4.))
+            .add_plugin(WorldInspectorPlugin)
             .add_plugin(camera::CameraPlugin)
             .add_plugin(actions::ActionsPlugin)
             .add_plugin(cursor::CursorPlugin)
             .add_plugin(assets::AssetPlugin)
             .add_plugin(paddle::PaddlePlugin)
             .add_plugin(ball::BallPlugin)
+            .add_plugin(lives::LivesPlugin)
+            .add_plugin(ui::UiPlugin)
             .add_plugin(menu::MenuPlugin)
-            .add_plugin(BlockPlugin)
+            .add_plugin(block::BlockPlugin)
             .add_state(GameState::Loading);
     }
 }
