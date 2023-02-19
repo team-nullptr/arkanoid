@@ -11,18 +11,24 @@ pub struct ActionsPlugin;
 // Actions can then be used as a resource in other systems to act on the player input.
 impl Plugin for ActionsPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<Actions>().add_system_set(
-            SystemSet::on_update(GameState::Playing)
-                .with_system(set_movement_actions)
-                .with_system(set_custom_actions),
-        );
+        app.add_event::<InputEvent>()
+            .init_resource::<Actions>()
+            .add_system_set(
+                SystemSet::on_update(GameState::Playing)
+                    .with_system(set_movement_actions)
+                    .with_system(call_input_events),
+            );
     }
 }
 
 #[derive(Default, Resource)]
 pub struct Actions {
     pub player_movement: Option<f32>,
-    pub primary_action: bool,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub enum InputEvent {
+    PrimaryAction,
 }
 
 pub fn set_movement_actions(
@@ -40,10 +46,12 @@ pub fn set_movement_actions(
     }
 }
 
-pub fn set_custom_actions(
-    mut actions: ResMut<Actions>,
+pub fn call_input_events(
+    mut input_events: EventWriter<InputEvent>,
     keyboard_input: Res<Input<KeyCode>>,
     mouse_button_input: Res<Input<MouseButton>>,
 ) {
-    actions.primary_action = GameControl::Action.pressed(&keyboard_input, &mouse_button_input);
+    if GameControl::Action.pressed(&keyboard_input, &mouse_button_input) {
+        input_events.send(InputEvent::PrimaryAction);
+    }
 }

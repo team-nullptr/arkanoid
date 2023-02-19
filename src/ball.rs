@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    actions::Actions,
+    actions::InputEvent,
     assets::TextureAssets,
     block::Block,
     paddle::{Paddle, PaddleSystem},
@@ -230,10 +230,12 @@ fn lose_condition(
     if transform.translation.y < -(window.height() / 2.) && state.set(GameState::Menu).is_err() {}
 }
 
-fn ball_control(mut ball_query: Query<&mut Ball>, actions: Res<Actions>) {
+fn ball_control(mut ball_query: Query<&mut Ball>, mut input_events: EventReader<InputEvent>) {
     for mut ball in ball_query.iter_mut() {
-        if actions.primary_action {
-            ball.state = BallState::Free;
+        for input_event in input_events.iter() {
+            if *input_event == InputEvent::PrimaryAction {
+                ball.state = BallState::Free;
+            }
         }
     }
 }
