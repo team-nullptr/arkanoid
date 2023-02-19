@@ -36,52 +36,56 @@ fn setup_ui(mut commands: Commands) {
         .insert(InGameUi)
         .insert(Name::new("UI"))
         .with_children(|parent| {
-            parent.spawn(NodeBundle {
-                style: Style {
-                    flex_direction: FlexDirection::Column,
-                    flex_grow: 1.0,
-                    flex_shrink: 1.0,
-                    flex_basis: Val::Percent(100.0),
-                    ..Default::default()
-                },
-                ..default()
-            })
-            .insert(Name::new("LeftSection"));
-
-            parent.spawn(NodeBundle {
-                style: Style {
-                    flex_direction: FlexDirection::Column,
-                    flex_grow: 1.0,
-                    flex_shrink: 1.0,
-                    flex_basis: Val::Percent(100.0),
-                    ..Default::default()
-                },
-                ..default()
-            })
-            .insert(Name::new("MiddleSection"));
-
-            parent.spawn(NodeBundle {
-                style: Style {
-                    flex_direction: FlexDirection::Column,
-                    flex_grow: 1.0,
-                    flex_shrink: 1.0,
-                    flex_basis: Val::Percent(100.0),
-                    ..Default::default()
-                },
-                ..default()
-            })
-            .insert(Name::new("RightSection"))
-            .with_children(|right_section| {
-                right_section.spawn(NodeBundle {
+            parent
+                .spawn(NodeBundle {
                     style: Style {
-                        flex_direction: FlexDirection::RowReverse,
-                        size: Size::new(Val::Percent(100.0), Val::Px(32.0)),
+                        flex_direction: FlexDirection::Column,
+                        flex_grow: 1.0,
+                        flex_shrink: 1.0,
+                        flex_basis: Val::Percent(100.0),
                         ..Default::default()
                     },
                     ..default()
                 })
-                .insert(LivesUi)
-                .insert(Name::new("Lives"));
-            });
+                .insert(Name::new("LeftSection"));
+
+            parent
+                .spawn(NodeBundle {
+                    style: Style {
+                        flex_direction: FlexDirection::Column,
+                        flex_grow: 1.0,
+                        flex_shrink: 1.0,
+                        flex_basis: Val::Percent(100.0),
+                        ..Default::default()
+                    },
+                    ..default()
+                })
+                .insert(Name::new("MiddleSection"));
+
+            parent
+                .spawn(NodeBundle {
+                    style: Style {
+                        flex_direction: FlexDirection::Column,
+                        flex_grow: 1.0,
+                        flex_shrink: 1.0,
+                        flex_basis: Val::Percent(100.0),
+                        ..Default::default()
+                    },
+                    ..default()
+                })
+                .insert(Name::new("RightSection"))
+                .with_children(|right_section| {
+                    right_section
+                        .spawn(NodeBundle {
+                            style: Style {
+                                flex_direction: FlexDirection::RowReverse,
+                                size: Size::new(Val::Percent(100.0), Val::Px(32.0)),
+                                ..Default::default()
+                            },
+                            ..default()
+                        })
+                        .insert(LivesUi)
+                        .insert(Name::new("Lives"));
+                });
         });
 }

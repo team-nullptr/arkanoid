@@ -2,7 +2,13 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    actions::Actions, assets::TextureAssets, cursor::FollowCursor, util::cleanup, GameState, lives::Lives, ball::{Ball, BallResetEvent},
+    actions::Actions,
+    assets::TextureAssets,
+    ball::{Ball, BallResetEvent},
+    cursor::FollowCursor,
+    lives::Lives,
+    util::cleanup,
+    GameState,
 };
 
 pub const PADDLE_SPEED: f32 = 500.0;
