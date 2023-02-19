@@ -30,7 +30,7 @@ impl Lives {
     pub fn lose(&mut self, amount: u32) -> LivesReachedZero {
         self.lives -= amount;
 
-        LivesReachedZero(self.lives <= 0)
+        LivesReachedZero(self.lives == 0)
     }
 }
 
