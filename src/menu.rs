@@ -79,7 +79,9 @@ fn play_button_interaction(
 ) {
     for interaction in &mut interaction_query {
         // If the button was released
-        if *interaction != Interaction::Clicked && *previous_interaction_state == Interaction::Clicked {
+        if *interaction != Interaction::Clicked
+            && *previous_interaction_state == Interaction::Clicked
+        {
             let _ = state.set(GameState::Playing);
         }
 
