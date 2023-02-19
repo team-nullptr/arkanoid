@@ -28,14 +28,16 @@ pub struct LivesReachedZero(bool);
 
 impl Lives {
 	#[must_use]
-	fn lose(&mut self, amount: u32) -> LivesReachedZero {
+	pub fn lose(&mut self, amount: u32) -> LivesReachedZero {
 		self.lives -= amount;
 
 		LivesReachedZero(self.lives <= 0)
 	}
+}
 
-	fn gain(&mut self, amount: u32) {
-		self.lives += amount;
+impl LivesReachedZero {
+	pub fn lives_reached_zero(&self) -> bool {
+		self.0
 	}
 }
 

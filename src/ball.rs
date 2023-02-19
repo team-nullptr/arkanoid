@@ -17,13 +17,14 @@ pub struct BallPlugin;
 impl Plugin for BallPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<BlockHitEvent>()
+            .add_event::<BallResetEvent>()
             .add_system_set(SystemSet::on_enter(GameState::Playing).with_system(ball_setup))
             .add_system_set(
                 SystemSet::on_update(GameState::Playing)
                     .with_system(ball_movement)
-                    .with_system(lose_condition)
                     .after(PaddleSystem::Movement)
-                    .with_system(ball_control),
+                    .with_system(ball_control)
+                    .with_system(ball_reset),
             )
             .add_system_set(SystemSet::on_exit(GameState::Playing).with_system(cleanup::<Ball>));
     }
@@ -46,6 +47,16 @@ pub struct Ball {
     pub state: BallState,
 }
 
+impl Default for Ball {
+    fn default() -> Self {
+        Self {
+            direction: Vec2::new(0., 1.),
+            speed: DEFAULT_BALL_SPEED,
+            state: BallState::Glued { percentage: 0.5 },
+        }
+    }
+}
+
 #[derive(Bundle)]
 struct BallBundle {
     ball: Ball,
@@ -54,8 +65,21 @@ struct BallBundle {
     sprite: SpriteBundle,
 }
 
+impl Default for BallBundle {
+    fn default() -> Self {
+        Self {
+            ball: Ball::default(),
+            collider: Collider::ball(1.),
+            sprite: SpriteBundle::default(),
+        }
+    }
+}
+
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub struct BlockHitEvent(pub Entity);
+
+#[derive(Copy, Clone, PartialEq, Debug)]
+pub struct BallResetEvent;
 
 fn ball_setup(
     mut commands: Commands,
@@ -69,17 +93,13 @@ fn ball_setup(
     let ball_size = image.size();
 
     commands.spawn(BallBundle {
-        ball: Ball {
-            direction: Vec2::new(0., 1.).normalize(),
-            speed: DEFAULT_BALL_SPEED,
-            state: BallState::Glued { percentage: 0.5 },
-        },
         collider: Collider::ball(ball_size.x / 2.),
         sprite: SpriteBundle {
-            transform: Transform::from_xyz(0.0, 0.0, 1.0).with_scale(Vec3::splat(0.5)),
+            transform: Transform::from_xyz(0.0, 999.0, 1.0).with_scale(Vec3::splat(0.5)),
             texture: texture_assets.ball.clone(),
             ..default()
         },
+        ..default()
     });
 }
 
@@ -219,21 +239,40 @@ fn ball_movement(
     }
 }
 
-fn lose_condition(
-    mut state: ResMut<State<GameState>>,
-    ball_query: Query<&Transform, With<Ball>>,
-    windows: Res<Windows>,
-) {
-    let window = windows.get_primary().expect("Primary window not found");
-    let transform = ball_query.single();
-
-    if transform.translation.y < -(window.height() / 2.) && state.set(GameState::Menu).is_err() {}
-}
-
 fn ball_control(mut ball_query: Query<&mut Ball>, actions: Res<Actions>) {
     for mut ball in ball_query.iter_mut() {
         if actions.primary_action {
             ball.state = BallState::Free;
         }
+    }
+}
+
+fn ball_reset(
+    mut commands: Commands,
+    ball_query: Query<Entity, With<Ball>>,
+    mut ball_reset_event_reader: EventReader<BallResetEvent>,
+    texture_assets: Res<TextureAssets>,
+    images: Res<Assets<Image>>,
+) {
+    for _ in ball_reset_event_reader.iter() {
+        for entity in ball_query.iter() {
+            commands.entity(entity).despawn_recursive();
+        }
+
+        let image = images
+            .get(&texture_assets.ball)
+            .expect("Ball texture not loaded yet!");
+
+        let ball_size = image.size();
+
+        commands.spawn(BallBundle {
+            collider: Collider::ball(ball_size.x / 2.),
+            sprite: SpriteBundle {
+                transform: Transform::from_xyz(0.0, 999.0, 1.0).with_scale(Vec3::splat(0.5)),
+                texture: texture_assets.ball.clone(),
+                ..default()
+            },
+            ..default()
+        });
     }
 }
