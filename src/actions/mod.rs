@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 
 use crate::actions::game_control::{get_movement, GameControl};
-use crate::GameState;
 
 mod game_control;
 
@@ -13,11 +12,8 @@ impl Plugin for ActionsPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<InputEvent>()
             .init_resource::<Actions>()
-            .add_system_set(
-                SystemSet::on_update(GameState::Playing)
-                    .with_system(set_movement_actions)
-                    .with_system(call_input_events),
-            );
+            .add_system(set_movement_actions)
+            .add_system(call_input_events);
     }
 }
 

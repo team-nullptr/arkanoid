@@ -74,11 +74,15 @@ fn spawn_menu(mut commands: Commands, fonts: Res<FontAssets>) {
 
 fn play_button_interaction(
     mut interaction_query: Query<&Interaction, (Changed<Interaction>, With<PlayButton>)>,
+    mut previous_interaction_state: Local<Interaction>,
     mut state: ResMut<State<GameState>>,
 ) {
     for interaction in &mut interaction_query {
-        if *interaction == Interaction::Clicked {
+        // If the button was released
+        if *interaction != Interaction::Clicked && *previous_interaction_state == Interaction::Clicked {
             let _ = state.set(GameState::Playing);
         }
+
+        *previous_interaction_state = *interaction;
     }
 }
