@@ -20,8 +20,8 @@ impl GameControl {
                 keyboard_input.pressed(KeyCode::D) || keyboard_input.pressed(KeyCode::Right)
             }
             GameControl::Action => {
-                keyboard_input.pressed(KeyCode::Space)
-                    || mouse_button_input.pressed(MouseButton::Left)
+                keyboard_input.just_pressed(KeyCode::Space)
+                    || mouse_button_input.just_pressed(MouseButton::Left)
             }
         }
     }
