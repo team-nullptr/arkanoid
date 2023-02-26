@@ -23,20 +23,24 @@ impl Default for Lives {
 }
 
 #[derive(Copy, Clone, PartialEq, Debug, Deref)]
-pub struct LivesReachedZero(bool);
+pub struct LivesReachedZero {
+    lives_reached_zero: bool,
+}
 
 impl Lives {
     #[must_use]
     pub fn lose(&mut self, amount: u32) -> LivesReachedZero {
         self.lives -= amount;
 
-        LivesReachedZero(self.lives == 0)
+        LivesReachedZero {
+            lives_reached_zero: self.lives == 0
+        }
     }
 }
 
 impl LivesReachedZero {
     pub fn lives_reached_zero(&self) -> bool {
-        self.0
+        self.lives_reached_zero
     }
 }
 
