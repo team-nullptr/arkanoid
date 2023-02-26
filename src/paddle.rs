@@ -25,7 +25,7 @@ impl Plugin for PaddlePlugin {
         .add_system_set(
             SystemSet::on_update(GameState::Playing)
                 .with_system(paddle_movement.label(PaddleSystem::Movement))
-                .with_system(lose_lives),
+                .with_system(lose_lives.label(PaddleSystem::LoseLives)),
         )
         .add_system_set(
             SystemSet::on_exit(GameState::Playing)
@@ -38,6 +38,7 @@ impl Plugin for PaddlePlugin {
 pub enum PaddleSystem {
     Setup,
     Movement,
+    LoseLives,
     Cleanup,
 }
 
