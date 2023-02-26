@@ -2,7 +2,13 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    actions::Actions, assets::TextureAssets, cursor::FollowCursor, util::cleanup, GameState,
+    actions::Actions,
+    assets::TextureAssets,
+    ball::{Ball, BallResetEvent},
+    cursor::FollowCursor,
+    lives::Lives,
+    util::cleanup,
+    GameState,
 };
 
 pub const PADDLE_SPEED: f32 = 500.0;
@@ -18,7 +24,8 @@ impl Plugin for PaddlePlugin {
         )
         .add_system_set(
             SystemSet::on_update(GameState::Playing)
-                .with_system(paddle_movement.label(PaddleSystem::Movement)),
+                .with_system(paddle_movement.label(PaddleSystem::Movement))
+                .with_system(lose_lives.label(PaddleSystem::LoseLives)),
         )
         .add_system_set(
             SystemSet::on_exit(GameState::Playing)
@@ -31,6 +38,7 @@ impl Plugin for PaddlePlugin {
 pub enum PaddleSystem {
     Setup,
     Movement,
+    LoseLives,
     Cleanup,
 }
 
@@ -40,6 +48,7 @@ pub struct Paddle;
 #[derive(Bundle, Default)]
 struct PaddleBundle {
     paddle: Paddle,
+    lives: Lives,
     collider: Collider,
     #[bundle]
     sprite: SpriteBundle,
@@ -102,5 +111,26 @@ fn paddle_movement(
         }
 
         paddle_transform.translation.x = paddle_transform.translation.x.clamp(-bound, bound);
+    }
+}
+
+fn lose_lives(
+    mut state: ResMut<State<GameState>>,
+    mut lives_query: Query<&mut Lives>,
+    ball_query: Query<&Transform, With<Ball>>,
+    windows: Res<Windows>,
+    mut ball_reset_event_writer: EventWriter<BallResetEvent>,
+) {
+    let window = windows.get_primary().expect("Primary window not found");
+    let transform = ball_query.single();
+
+    if transform.translation.y < -window.height() / 2. {
+        for mut lives in lives_query.iter_mut() {
+            if lives.lose(1).lives_reached_zero() {
+                let _ = state.set(GameState::Menu);
+            }
+
+            ball_reset_event_writer.send(BallResetEvent);
+        }
     }
 }
