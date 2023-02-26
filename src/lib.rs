@@ -1,11 +1,11 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
-use block::BlockPlugin;
 
 mod actions;
 mod assets;
 mod ball;
 mod block;
+mod boost;
 mod camera;
 mod cursor;
 mod menu;
@@ -43,7 +43,8 @@ impl Plugin for ArkanoidPlugin {
             .add_plugin(paddle::PaddlePlugin)
             .add_plugin(ball::BallPlugin)
             .add_plugin(menu::MenuPlugin)
-            .add_plugin(BlockPlugin)
+            .add_plugin(block::BlockPlugin)
+            .add_plugin(boost::BoostPlugin)
             .add_state(GameState::Loading);
     }
 }
