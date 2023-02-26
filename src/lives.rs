@@ -33,7 +33,7 @@ impl Lives {
         self.lives -= amount;
 
         LivesReachedZero {
-            lives_reached_zero: self.lives == 0
+            lives_reached_zero: self.lives == 0,
         }
     }
 }
