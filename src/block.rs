@@ -1,4 +1,4 @@
-use crate::{assets::TextureAssets, ball::BlockHitEvent, util::cleanup, GameState, score::Score};
+use crate::{assets::TextureAssets, ball::BlockHitEvent, score::Score, util::cleanup, GameState};
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 

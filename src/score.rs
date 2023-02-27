@@ -1,13 +1,13 @@
 use bevy::prelude::*;
 
-use crate::{GameState, ui::ScoreUi};
+use crate::{ui::ScoreUi, GameState};
 
 pub struct PointsPlugin;
 
 impl Plugin for PointsPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Score>()
-			.add_system_set(SystemSet::on_update(GameState::Playing).with_system(update_points_ui));
+            .add_system_set(SystemSet::on_update(GameState::Playing).with_system(update_points_ui));
     }
 }
 

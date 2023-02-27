@@ -2,7 +2,7 @@
 
 use bevy::prelude::*;
 
-use crate::{util::cleanup, GameState, assets::FontAssets};
+use crate::{assets::FontAssets, util::cleanup, GameState};
 
 pub struct UiPlugin;
 
@@ -52,11 +52,14 @@ fn setup_ui(mut commands: Commands, fonts: Res<FontAssets>) {
                 .insert(Name::new("LeftSection"))
                 .with_children(|parent| {
                     parent
-                        .spawn(TextBundle::from_section("0", TextStyle {
-                            font: fonts.title_font.clone(),
-                            font_size: 40.0,
-                            color: Color::rgb(0.9, 0.9, 0.9),
-                        }))
+                        .spawn(TextBundle::from_section(
+                            "0",
+                            TextStyle {
+                                font: fonts.title_font.clone(),
+                                font_size: 40.0,
+                                color: Color::rgb(0.9, 0.9, 0.9),
+                            },
+                        ))
                         .insert(Name::new("Score"))
                         .insert(ScoreUi);
                 });

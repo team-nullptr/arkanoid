@@ -7,8 +7,9 @@ use crate::{
     ball::{Ball, BallResetEvent},
     cursor::FollowCursor,
     lives::Lives,
+    score::Score,
     util::cleanup,
-    GameState, score::Score,
+    GameState,
 };
 
 pub const PADDLE_SPEED: f32 = 500.0;
