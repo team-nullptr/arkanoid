@@ -121,10 +121,8 @@ fn spawn_block(mut commands: Commands, textures: Res<TextureAssets>, images: Res
                     (Vec2::new(
                         (i as f32 + 0.5) * block_size.x - blocks_dims.x,
                         -(j as f32 + 0.5) * block_size.y + blocks_dims.y,
-                    ) + Vec2::new(
-                        i as f32 * block_gap.x,
-                        -j as f32 * block_gap.y,
-                    )) / 2.,
+                    ) + Vec2::new(i as f32 * block_gap.x, -j as f32 * block_gap.y))
+                        / 2.,
                 ),
             );
         }
