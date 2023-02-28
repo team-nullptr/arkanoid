@@ -26,7 +26,6 @@ pub enum BlockType {
 
 impl From<BlockType> for Color {
     fn from(val: BlockType) -> Self {
-        // TODO: Improve the silver and gold colors
         match val {
             BlockType::Orange => Color::hex("ff870f").unwrap(),
             BlockType::LightBlue => Color::hex("0fffc3").unwrap(),
@@ -34,8 +33,8 @@ impl From<BlockType> for Color {
             BlockType::Red => Color::hex("a8180d").unwrap(),
             BlockType::Blue => Color::hex("0a13ad").unwrap(),
             BlockType::Pink => Color::hex("c016c9").unwrap(),
-            BlockType::Silver { .. } => Color::hex("d9cebd").unwrap(),
-            BlockType::Gold => Color::hex("face1e").unwrap(),
+            BlockType::Silver { .. } => Color::hex("c5ced4").unwrap(),
+            BlockType::Gold => Color::hex("d4af37").unwrap(),
         }
     }
 }
