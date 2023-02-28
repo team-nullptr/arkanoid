@@ -1,4 +1,4 @@
-use crate::{assets::TextureAssets, ball::BlockHitEvent, util::cleanup, GameState};
+use crate::{assets::TextureAssets, ball::BlockHitEvent, score::Score, util::cleanup, GameState};
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
@@ -36,6 +36,21 @@ impl From<BlockType> for Color {
             BlockType::Pink => Color::hex("c016c9").unwrap(),
             BlockType::Silver { .. } => Color::hex("d9cebd").unwrap(),
             BlockType::Gold => Color::hex("face1e").unwrap(),
+        }
+    }
+}
+
+impl BlockType {
+    fn score(&self, level_num: u32) -> u32 {
+        match *self {
+            BlockType::Orange => 60,
+            BlockType::LightBlue => 70,
+            BlockType::Green => 80,
+            BlockType::Red => 90,
+            BlockType::Blue => 100,
+            BlockType::Pink => 110,
+            BlockType::Silver { .. } => 50 * level_num,
+            BlockType::Gold => 120,
         }
     }
 }
@@ -114,24 +129,30 @@ fn spawn_block(mut commands: Commands, textures: Res<TextureAssets>, images: Res
 fn destroy_blocks(
     mut commands: Commands,
     mut blocks: Query<&mut Block>,
+    mut paddle_points: Query<&mut Score>,
     mut events: EventReader<BlockHitEvent>,
 ) {
-    for event in events.iter() {
-        if let Ok(block) = blocks.get(event.0) {
-            match block.block_type {
-                BlockType::Silver { hits_taken } => {
-                    // TODO: Add the level number dependant logic later
-                    let hits_taken = hits_taken + 1;
+    let mut paddle_points = paddle_points.single_mut();
 
-                    if hits_taken >= 2 {
-                        commands.entity(event.0).despawn_recursive();
-                    } else {
-                        blocks.get_mut(event.0).unwrap().block_type =
-                            BlockType::Silver { hits_taken };
-                    }
+    for event in events.iter() {
+        if let Ok(mut block) = blocks.get_mut(event.0) {
+            let block_type = &mut block.block_type;
+
+            // TODO: Add the level number dependant logic later
+            let break_block = match block_type {
+                BlockType::Silver { hits_taken } => {
+                    *hits_taken += 1;
+
+                    *hits_taken >= 2
                 }
-                BlockType::Gold => (),
-                _ => commands.entity(event.0).despawn_recursive(),
+                BlockType::Gold => false,
+                _ => true,
+            };
+
+            if break_block {
+                commands.entity(event.0).despawn_recursive();
+
+                **paddle_points += block_type.score(1);
             }
         }
     }

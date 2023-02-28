@@ -7,6 +7,7 @@ use crate::{
     ball::{Ball, BallResetEvent},
     cursor::FollowCursor,
     lives::Lives,
+    score::Score,
     util::cleanup,
     GameState,
 };
@@ -48,7 +49,9 @@ pub struct Paddle;
 #[derive(Bundle, Default)]
 struct PaddleBundle {
     paddle: Paddle,
+    name: Name,
     lives: Lives,
+    points: Score,
     collider: Collider,
     #[bundle]
     sprite: SpriteBundle,
@@ -65,6 +68,7 @@ fn paddle_setup(
     let paddle_size = image.size();
 
     commands.spawn(PaddleBundle {
+        name: Name::new("Paddle"),
         sprite: SpriteBundle {
             transform: Transform::from_xyz(0.0, PADDLE_ALTITUDE, 1.0).with_scale(Vec3::splat(0.25)),
             texture: texture_assets.paddle.clone(),
