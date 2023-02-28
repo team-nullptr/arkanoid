@@ -97,7 +97,7 @@ fn spawn_block(mut commands: Commands, textures: Res<TextureAssets>, images: Res
 
     let block_size = block_image.size() / 2.;
 
-    let blocks_count = IVec2::new(7, 8);
+    let blocks_count = IVec2::new(6, 5);
     let block_gap = Vec2::new(10., 10.);
 
     let blocks_dims = (Vec2::new(
