@@ -97,13 +97,16 @@ fn spawn_block(mut commands: Commands, textures: Res<TextureAssets>, images: Res
 
     let block_size = block_image.size() / 2.;
 
-    let blocks_count = IVec2::new(3, 4);
-    let block_margin = Vec2::new(5., 5.);
+    let blocks_count = IVec2::new(6, 5);
+    let block_gap = Vec2::new(10., 10.);
 
-    let blocks_dims = Vec2::new(
-        (blocks_count.x - 1) as f32 * (block_size.x + block_margin.x),
-        (blocks_count.y - 1) as f32 * (block_size.y + block_margin.y),
-    );
+    let blocks_dims = (Vec2::new(
+        blocks_count.x as f32 * block_size.x,
+        blocks_count.y as f32 * block_size.y,
+    ) + Vec2::new(
+        (blocks_count.x - 1) as f32 * block_gap.x,
+        (blocks_count.y - 1) as f32 * block_gap.y,
+    )) / 2.;
 
     for i in 0..blocks_count.x {
         for j in 0..blocks_count.y {
@@ -115,10 +118,11 @@ fn spawn_block(mut commands: Commands, textures: Res<TextureAssets>, images: Res
 
             commands.spawn(
                 BlockBundle::new(block_type, &block_size, textures.block.clone()).with_pos(
-                    Vec2::new(
-                        (i + 1) as f32 * (block_size.x / 2. + block_margin.x) - blocks_dims.x / 2.,
-                        -(j + 1) as f32 * (block_size.y / 2. + block_margin.y) + blocks_dims.y / 2.,
-                    ),
+                    (Vec2::new(
+                        (i as f32 + 0.5) * block_size.x - blocks_dims.x,
+                        -(j as f32 + 0.5) * block_size.y + blocks_dims.y,
+                    ) + Vec2::new(i as f32 * block_gap.x, -j as f32 * block_gap.y))
+                        / 2.,
                 ),
             );
         }
