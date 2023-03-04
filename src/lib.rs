@@ -1,3 +1,7 @@
+#![allow(incomplete_features)]
+// WARNING: Be careful with this, it can cause compiler crashes.
+#![feature(adt_const_params)]
+
 use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_rapier2d::prelude::*;

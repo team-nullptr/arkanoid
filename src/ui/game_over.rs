@@ -13,7 +13,9 @@ impl Plugin for GameOverPlugin {
             .add_system_set(SystemSet::on_enter(GameState::GameOver).with_system(spawn_ui))
             .add_system_set(
                 SystemSet::on_update(GameState::GameOver)
-                    .with_system(handle_go_to_menu_button)
+                    .with_system(go_to_state_button::<GoToMenuButton, { GameState::Menu }>)
+                    .after(ButtonSystem::UpdateButtonInteraction)
+                    .with_system(go_to_state_button::<RetryButton, { GameState::Playing }>)
                     .after(ButtonSystem::UpdateButtonInteraction),
             )
             .add_system_set(
@@ -27,6 +29,9 @@ struct GameOverUi;
 
 #[derive(Component, Reflect)]
 struct GoToMenuButton;
+
+#[derive(Component, Reflect)]
+struct RetryButton;
 
 fn spawn_ui(mut commands: Commands, fonts: Res<FontAssets>) {
     commands
@@ -59,6 +64,8 @@ fn spawn_ui(mut commands: Commands, fonts: Res<FontAssets>) {
                 .spawn(NodeBundle {
                     style: Style {
                         margin: UiRect::top(Val::Px(64.)),
+                        justify_content: JustifyContent::SpaceBetween,
+                        size: Size::new(Val::Px(256. + 64.), Val::Auto),
                         ..default()
                     },
                     ..default()
@@ -77,17 +84,31 @@ fn spawn_ui(mut commands: Commands, fonts: Res<FontAssets>) {
                                 },
                             ));
                         });
+
+                    parent
+                        .spawn(ArkanoidButtonBundle::default())
+                        .insert(RetryButton)
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle::from_section(
+                                "Retry",
+                                TextStyle {
+                                    font: fonts.title_font.clone(),
+                                    font_size: 24.,
+                                    color: Color::WHITE,
+                                },
+                            ));
+                        });
                 });
         });
 }
 
-fn handle_go_to_menu_button(
+fn go_to_state_button<B: Component, const STATE: GameState>(
     mut state: ResMut<State<GameState>>,
-    mut query: Query<&ButtonInteraction, (Changed<Interaction>, With<GoToMenuButton>)>,
+    mut query: Query<&ButtonInteraction, (Changed<Interaction>, With<B>)>,
 ) {
     if let Some(button_interaction) = query.iter_mut().next() {
         if button_interaction.just_released {
-            let _ = state.set(GameState::Menu);
+            let _ = state.set(STATE);
         }
     }
 }
