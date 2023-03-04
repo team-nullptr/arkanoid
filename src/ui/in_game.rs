@@ -4,9 +4,9 @@ use bevy::prelude::*;
 
 use crate::{assets::FontAssets, util::cleanup, GameState};
 
-pub struct UiPlugin;
+pub struct InGameUiPlugin;
 
-impl Plugin for UiPlugin {
+impl Plugin for InGameUiPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<InGameUi>()
             .register_type::<LivesUi>()

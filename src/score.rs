@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{ui::ScoreUi, GameState};
+use crate::{ui::in_game::ScoreUi, GameState};
 
 pub struct PointsPlugin;
 

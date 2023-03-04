@@ -29,7 +29,7 @@ impl Plugin for PaddlePlugin {
                 .with_system(lose_lives.label(PaddleSystem::LoseLives)),
         )
         .add_system_set(
-            SystemSet::on_exit(GameState::Playing)
+            SystemSet::on_exit(GameState::GameOver)
                 .with_system(cleanup::<Paddle>.label(PaddleSystem::Cleanup)),
         );
     }
@@ -131,7 +131,7 @@ fn lose_lives(
     if transform.translation.y < -window.height() / 2. {
         for mut lives in lives_query.iter_mut() {
             if lives.lose(1).lives_reached_zero() {
-                let _ = state.set(GameState::Menu);
+                let _ = state.set(GameState::GameOver);
             }
 
             ball_reset_event_writer.send(BallResetEvent);

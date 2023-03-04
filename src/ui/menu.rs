@@ -1,9 +1,7 @@
 use crate::{assets::FontAssets, util::cleanup, GameState};
 use bevy::prelude::*;
 
-const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
-// const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
-// const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
+use super::button::{ArkanoidButtonBundle, ButtonInteraction, ButtonSystem};
 
 pub struct MenuPlugin;
 
@@ -11,7 +9,9 @@ impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set(SystemSet::on_enter(GameState::Menu).with_system(spawn_menu))
             .add_system_set(
-                SystemSet::on_update(GameState::Menu).with_system(play_button_interaction),
+                SystemSet::on_update(GameState::Menu)
+                    .with_system(play_button_interaction)
+                    .after(ButtonSystem::UpdateButtonInteraction),
             )
             .add_system_set(SystemSet::on_exit(GameState::Menu).with_system(cleanup::<Menu>));
     }
@@ -37,27 +37,23 @@ fn spawn_menu(mut commands: Commands, fonts: Res<FontAssets>) {
         })
         .insert(Menu)
         .with_children(|parent| {
-            parent.spawn(TextBundle::from_section(
-                "Arkanoid",
-                TextStyle {
-                    font: fonts.title_font.clone(),
-                    font_size: 64.,
-                    color: Color::WHITE,
-                },
-            ));
+            parent.spawn(
+                TextBundle::from_section(
+                    "Arkanoid",
+                    TextStyle {
+                        font: fonts.title_font.clone(),
+                        font_size: 64.,
+                        color: Color::WHITE,
+                    },
+                )
+                .with_style(Style {
+                    margin: UiRect::bottom(Val::Px(32.)),
+                    ..Default::default()
+                }),
+            );
 
             parent
-                .spawn(ButtonBundle {
-                    style: Style {
-                        size: Size::new(Val::Px(150.), Val::Px(65.)),
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        margin: UiRect::top(Val::Px(32.)),
-                        ..default()
-                    },
-                    background_color: NORMAL_BUTTON.into(),
-                    ..default()
-                })
+                .spawn(ArkanoidButtonBundle::default())
                 .insert(PlayButton)
                 .with_children(|parent| {
                     parent.spawn(TextBundle::from_section(
@@ -73,18 +69,12 @@ fn spawn_menu(mut commands: Commands, fonts: Res<FontAssets>) {
 }
 
 fn play_button_interaction(
-    mut interaction_query: Query<&Interaction, (Changed<Interaction>, With<PlayButton>)>,
-    mut previous_interaction_state: Local<Interaction>,
+    mut interaction_query: Query<&ButtonInteraction, (Changed<Interaction>, With<PlayButton>)>,
     mut state: ResMut<State<GameState>>,
 ) {
-    for interaction in &mut interaction_query {
-        // If the button was released
-        if *interaction != Interaction::Clicked
-            && *previous_interaction_state == Interaction::Clicked
-        {
+    for button_interaction in &mut interaction_query {
+        if button_interaction.just_released {
             let _ = state.set(GameState::Playing);
         }
-
-        *previous_interaction_state = *interaction;
     }
 }
