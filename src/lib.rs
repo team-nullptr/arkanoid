@@ -1,3 +1,7 @@
+#![allow(incomplete_features)]
+// WARNING: Be careful with this, it can cause compiler crashes.
+#![feature(adt_const_params)]
+
 use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_rapier2d::prelude::*;
@@ -9,7 +13,6 @@ mod block;
 mod camera;
 mod cursor;
 mod lives;
-mod menu;
 mod paddle;
 mod score;
 mod ui;
@@ -20,6 +23,7 @@ enum GameState {
     Loading,
     Menu,
     Playing,
+    GameOver,
 }
 
 pub struct ArkanoidPlugin;
@@ -49,7 +53,6 @@ impl Plugin for ArkanoidPlugin {
             .add_plugin(lives::LivesPlugin)
             .add_plugin(score::PointsPlugin)
             .add_plugin(ui::UiPlugin)
-            .add_plugin(menu::MenuPlugin)
             .add_plugin(block::BlockPlugin)
             .add_state(GameState::Loading);
     }

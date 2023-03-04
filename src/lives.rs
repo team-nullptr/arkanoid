@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{assets::TextureAssets, ui::LivesUi, GameState};
+use crate::{assets::TextureAssets, ui::in_game::LivesUi, GameState};
 
 pub struct LivesPlugin;
 
@@ -59,19 +59,21 @@ fn display_lives(
             commands.entity(child).despawn_recursive();
         }
 
-        commands.entity(ui_query.single()).with_children(|parent| {
-            for _ in 0..lives.lives {
-                parent
-                    .spawn(ImageBundle {
-                        style: Style {
-                            margin: UiRect::left(Val::Px(8.)),
+        if let Ok(ui) = ui_query.get_single() {
+            commands.entity(ui).with_children(|parent| {
+                for _ in 0..lives.lives {
+                    parent
+                        .spawn(ImageBundle {
+                            style: Style {
+                                margin: UiRect::left(Val::Px(8.)),
+                                ..default()
+                            },
+                            image: texture_assets.ball_small.clone().into(),
                             ..default()
-                        },
-                        image: texture_assets.ball_small.clone().into(),
-                        ..default()
-                    })
-                    .insert(LivesUiElement);
-            }
-        });
+                        })
+                        .insert(LivesUiElement);
+                }
+            });
+        }
     }
 }

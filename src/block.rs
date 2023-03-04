@@ -8,7 +8,7 @@ impl Plugin for BlockPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set(SystemSet::on_enter(GameState::Playing).with_system(spawn_block))
             .add_system_set(SystemSet::on_update(GameState::Playing).with_system(destroy_blocks))
-            .add_system_set(SystemSet::on_exit(GameState::Playing).with_system(cleanup::<Block>));
+            .add_system_set(SystemSet::on_exit(GameState::GameOver).with_system(cleanup::<Block>));
     }
 }
 
