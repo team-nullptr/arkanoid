@@ -287,3 +287,40 @@ fn ball_reset(
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::assert_matches::assert_matches;
+
+    use crate::paddle::PaddleBundle;
+
+    use super::*;
+
+    #[test]
+    fn ball_state_change_test() {
+        let mut world = World::new();
+
+        world.spawn(PaddleBundle::default());
+        world.spawn(BallBundle::default());
+
+        world.init_resource::<Events<InputEvent>>();
+
+        let mut update_stage = SystemStage::parallel();
+
+        update_stage.add_system(ball_control);
+
+        update_stage.run(&mut world);
+
+        let ball = world.query::<&mut Ball>().single(&world);
+
+        assert_matches!(ball.state, BallState::Glued { percentage: _ });
+
+        world.send_event(InputEvent::PrimaryAction);
+
+        update_stage.run(&mut world);
+
+        let ball = world.query::<&mut Ball>().single(&world);
+
+        assert_eq!(ball.state, BallState::Free);
+    }
+}

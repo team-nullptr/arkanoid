@@ -77,3 +77,34 @@ fn display_lives(
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn lose_lives() {
+        let mut lives = Lives::default();
+
+        assert_eq!(lives.lives, 3);
+
+        let _ = lives.lose(1);
+
+        assert_eq!(lives.lives, 2);
+
+        let _ = lives.lose(2);
+
+        assert_eq!(lives.lives, 0);
+    }
+
+    #[test]
+    fn lives_reached_zero() {
+        let mut lives = Lives::default();
+
+        assert_eq!(lives.lives, 3);
+
+        assert!(!lives.lose(1).lives_reached_zero());
+
+        assert!(lives.lose(2).lives_reached_zero());
+    }
+}
