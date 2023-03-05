@@ -1,9 +1,12 @@
 #![allow(incomplete_features)]
 // WARNING: Be careful with this, it can cause compiler crashes.
 #![feature(adt_const_params)]
+// WARNING: Be careful with this, it is an unstable feature.
+#![feature(assert_matches)]
 
 use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_kira_audio::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 mod actions;
@@ -17,6 +20,7 @@ mod paddle;
 mod score;
 mod ui;
 mod util;
+mod win;
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash)]
 pub enum GameState {
@@ -24,6 +28,7 @@ pub enum GameState {
     Menu,
     Help,
     Playing,
+    Win,
     GameOver,
 }
 
@@ -44,12 +49,14 @@ impl Plugin for ArkanoidPlugin {
                 ..default()
             }))
             .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(4.))
+            .add_plugin(AudioPlugin)
             .add_plugin(camera::CameraPlugin)
             .add_plugin(actions::ActionsPlugin)
             .add_plugin(cursor::CursorPlugin)
             .add_plugin(assets::AssetPlugin)
             .add_plugin(paddle::PaddlePlugin)
             .add_plugin(ball::BallPlugin)
+            .add_plugin(win::WinPlugin)
             .add_plugin(lives::LivesPlugin)
             .add_plugin(score::PointsPlugin)
             .add_plugin(ui::UiPlugin)

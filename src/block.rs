@@ -1,5 +1,12 @@
-use crate::{assets::TextureAssets, ball::BlockHitEvent, score::Score, util::cleanup, GameState};
+use crate::{
+    assets::{AudioAssets, TextureAssets},
+    ball::BlockHitEvent,
+    score::Score,
+    util::cleanup,
+    GameState,
+};
 use bevy::prelude::*;
+use bevy_kira_audio::{Audio, AudioControl};
 use bevy_rapier2d::prelude::*;
 
 pub struct BlockPlugin;
@@ -8,7 +15,8 @@ impl Plugin for BlockPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set(SystemSet::on_enter(GameState::Playing).with_system(spawn_block))
             .add_system_set(SystemSet::on_update(GameState::Playing).with_system(destroy_blocks))
-            .add_system_set(SystemSet::on_exit(GameState::GameOver).with_system(cleanup::<Block>));
+            .add_system_set(SystemSet::on_exit(GameState::GameOver).with_system(cleanup::<Block>))
+            .add_system_set(SystemSet::on_exit(GameState::Win).with_system(cleanup::<Block>));
     }
 }
 
@@ -97,7 +105,7 @@ fn spawn_block(mut commands: Commands, textures: Res<TextureAssets>, images: Res
 
     let block_size = block_image.size() / 2.;
 
-    let blocks_count = IVec2::new(6, 5);
+    let blocks_count = IVec2::new(3, 3);
     let block_gap = Vec2::new(10., 10.);
 
     let blocks_dims = (Vec2::new(
@@ -133,6 +141,8 @@ fn destroy_blocks(
     mut commands: Commands,
     mut blocks: Query<&mut Block>,
     mut paddle_points: Query<&mut Score>,
+    audio: Res<Audio>,
+    audio_assets: Res<AudioAssets>,
     mut events: EventReader<BlockHitEvent>,
 ) {
     let mut paddle_points = paddle_points.single_mut();
@@ -156,6 +166,10 @@ fn destroy_blocks(
                 commands.entity(event.0).despawn_recursive();
 
                 **paddle_points += block_type.score(1);
+
+                audio.play(audio_assets.block_break.clone());
+            } else {
+                audio.play(audio_assets.block_bounce.clone());
             }
         }
     }
