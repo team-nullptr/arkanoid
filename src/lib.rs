@@ -5,6 +5,7 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_rapier2d::prelude::*;
+use bevy_kira_audio::prelude::*;
 
 mod actions;
 mod assets;
@@ -44,6 +45,7 @@ impl Plugin for ArkanoidPlugin {
                 ..default()
             }))
             .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(4.))
+            .add_plugin(AudioPlugin)
             .add_plugin(WorldInspectorPlugin)
             .add_plugin(camera::CameraPlugin)
             .add_plugin(actions::ActionsPlugin)
