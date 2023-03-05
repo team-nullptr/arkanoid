@@ -28,6 +28,10 @@ pub struct FontAssets {
 pub struct AudioAssets {
     #[asset(path = "audio/bounce.wav")]
     pub bounce: Handle<AudioSource>,
+    #[asset(path = "audio/block_break.wav")]
+    pub block_break: Handle<AudioSource>,
+    #[asset(path = "audio/block_bounce.wav")]
+    pub block_bounce: Handle<AudioSource>,
 }
 
 #[derive(AssetCollection, Resource)]
