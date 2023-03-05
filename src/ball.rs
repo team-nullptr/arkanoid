@@ -28,7 +28,8 @@ impl Plugin for BallPlugin {
                     .with_system(ball_reset)
                     .after(PaddleSystem::LoseLives),
             )
-            .add_system_set(SystemSet::on_exit(GameState::Playing).with_system(cleanup::<Ball>));
+            .add_system_set(SystemSet::on_exit(GameState::Playing).with_system(cleanup::<Ball>))
+            .add_system_set(SystemSet::on_exit(GameState::Win).with_system(cleanup::<Ball>));
     }
 }
 

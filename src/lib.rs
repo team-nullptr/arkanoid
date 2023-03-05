@@ -18,6 +18,7 @@ mod paddle;
 mod score;
 mod ui;
 mod util;
+mod win;
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash)]
 pub enum GameState {
@@ -25,6 +26,7 @@ pub enum GameState {
     Menu,
     Help,
     Playing,
+    Win,
     GameOver,
 }
 
@@ -53,6 +55,7 @@ impl Plugin for ArkanoidPlugin {
             .add_plugin(assets::AssetPlugin)
             .add_plugin(paddle::PaddlePlugin)
             .add_plugin(ball::BallPlugin)
+            .add_plugin(win::WinPlugin)
             .add_plugin(lives::LivesPlugin)
             .add_plugin(score::PointsPlugin)
             .add_plugin(ui::UiPlugin)

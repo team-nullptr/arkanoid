@@ -15,7 +15,8 @@ impl Plugin for BlockPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set(SystemSet::on_enter(GameState::Playing).with_system(spawn_block))
             .add_system_set(SystemSet::on_update(GameState::Playing).with_system(destroy_blocks))
-            .add_system_set(SystemSet::on_exit(GameState::GameOver).with_system(cleanup::<Block>));
+            .add_system_set(SystemSet::on_exit(GameState::GameOver).with_system(cleanup::<Block>))
+            .add_system_set(SystemSet::on_exit(GameState::Win).with_system(cleanup::<Block>));
     }
 }
 
@@ -104,7 +105,7 @@ fn spawn_block(mut commands: Commands, textures: Res<TextureAssets>, images: Res
 
     let block_size = block_image.size() / 2.;
 
-    let blocks_count = IVec2::new(6, 5);
+    let blocks_count = IVec2::new(3, 3);
     let block_gap = Vec2::new(10., 10.);
 
     let blocks_dims = (Vec2::new(
