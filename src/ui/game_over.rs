@@ -2,7 +2,10 @@ use bevy::prelude::*;
 
 use crate::{assets::FontAssets, util::cleanup, GameState};
 
-use super::button::{ArkanoidButtonBundle, ButtonInteraction, ButtonSystem};
+use super::{
+    button::{ArkanoidButtonBundle, ButtonSystem},
+    set_state_button,
+};
 
 pub struct GameOverPlugin;
 
@@ -13,9 +16,9 @@ impl Plugin for GameOverPlugin {
             .add_system_set(SystemSet::on_enter(GameState::GameOver).with_system(spawn_ui))
             .add_system_set(
                 SystemSet::on_update(GameState::GameOver)
-                    .with_system(go_to_state_button::<GoToMenuButton, { GameState::Menu }>)
+                    .with_system(set_state_button::<GoToMenuButton, { GameState::Menu }>)
                     .after(ButtonSystem::UpdateButtonInteraction)
-                    .with_system(go_to_state_button::<RetryButton, { GameState::Playing }>)
+                    .with_system(set_state_button::<RetryButton, { GameState::Playing }>)
                     .after(ButtonSystem::UpdateButtonInteraction),
             )
             .add_system_set(
@@ -100,15 +103,4 @@ fn spawn_ui(mut commands: Commands, fonts: Res<FontAssets>) {
                         });
                 });
         });
-}
-
-fn go_to_state_button<B: Component, const STATE: GameState>(
-    mut state: ResMut<State<GameState>>,
-    mut query: Query<&ButtonInteraction, (Changed<Interaction>, With<B>)>,
-) {
-    if let Some(button_interaction) = query.iter_mut().next() {
-        if button_interaction.just_released {
-            let _ = state.set(STATE);
-        }
-    }
 }

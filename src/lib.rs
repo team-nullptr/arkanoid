@@ -20,9 +20,10 @@ mod util;
 mod win;
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash)]
-enum GameState {
+pub enum GameState {
     Loading,
     Menu,
+    Help,
     Playing,
     Win,
     GameOver,
