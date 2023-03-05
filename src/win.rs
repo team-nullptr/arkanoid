@@ -1,8 +1,9 @@
 use bevy::prelude::*;
+use bevy_kira_audio::{Audio, AudioControl};
 
 use crate::{
     block::{Block, BlockType},
-    GameState,
+    GameState, assets::AudioAssets,
 };
 
 pub struct WinPlugin;
@@ -13,7 +14,7 @@ impl Plugin for WinPlugin {
     }
 }
 
-fn check_for_win(block_query: Query<&Block>, mut state: ResMut<State<GameState>>) {
+fn check_for_win(block_query: Query<&Block>, mut state: ResMut<State<GameState>>, audio: Res<Audio>, audio_assets: Res<AudioAssets>) {
     let non_gold_blocks_num = block_query
         .iter()
         .filter(|block| block.block_type != BlockType::Gold)
@@ -21,5 +22,7 @@ fn check_for_win(block_query: Query<&Block>, mut state: ResMut<State<GameState>>
 
     if non_gold_blocks_num == 0 {
         let _ = state.set(GameState::Win);
+
+        audio.play(audio_assets.win.clone());
     }
 }

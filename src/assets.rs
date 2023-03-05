@@ -32,6 +32,10 @@ pub struct AudioAssets {
     pub block_break: Handle<AudioSource>,
     #[asset(path = "audio/block_bounce.wav")]
     pub block_bounce: Handle<AudioSource>,
+    #[asset(path = "audio/win.wav")]
+    pub win: Handle<AudioSource>,
+    #[asset(path = "audio/lose.wav")]
+    pub lose: Handle<AudioSource>,
 }
 
 #[derive(AssetCollection, Resource)]
