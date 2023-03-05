@@ -1,9 +1,7 @@
 {
-	"width": 3,
-	"height": 3,
 	"tiles": [
-		"gold", "gold", "gold",
-		"silver", "silver", "silver",
-		"orange", "orange", "orange"
+		["gold", "gold", "gold"],
+		["silver", "silver", "silver"],
+		["orange", "orange", "orange"]
 	]
 }

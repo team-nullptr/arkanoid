@@ -2,21 +2,33 @@ use bevy::{prelude::*, reflect::TypeUuid, asset::{LoadContext, AssetLoader, Load
 
 use serde::Deserialize;
 
+use crate::GameState;
+
 pub struct LevelPlugin;
 
 impl Plugin for LevelPlugin {
 	fn build(&self, app: &mut App) {
 		app.init_asset_loader::<LevelLoader>()
-			.add_asset::<LevelAsset>();
+			.add_asset::<LevelAsset>()
+			.init_resource::<CurrentLevel>()
+			.add_system_set(
+				SystemSet::on_exit(GameState::Menu)
+					.with_system(reset_current_level),
+			);
 	}
+}
+
+#[derive(Resource, Default, Deref, DerefMut)]
+pub struct CurrentLevel(pub usize);
+
+fn reset_current_level(mut current_level: ResMut<CurrentLevel>) {
+	current_level.0 = 0;
 }
 
 #[derive(Debug, Deserialize, Reflect, TypeUuid)]
 #[uuid = "5c8be95c-5d54-46d2-a903-ac7bc7d5b4c2"]
 pub struct LevelAsset {
-	pub width: u32,
-	pub height: u32,
-	pub tiles: Vec<String>,
+	pub tiles: Vec<Vec<String>>,
 }
 
 #[derive(Default)]
