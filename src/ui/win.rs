@@ -2,7 +2,10 @@ use bevy::prelude::*;
 
 use crate::{assets::FontAssets, util::cleanup, GameState};
 
-use super::{button::{ArkanoidButtonBundle, ButtonSystem}, set_state_button};
+use super::{
+    button::{ArkanoidButtonBundle, ButtonSystem},
+    set_state_button,
+};
 
 pub struct WinUiPlugin;
 
@@ -14,11 +17,9 @@ impl Plugin for WinUiPlugin {
             .add_system_set(
                 SystemSet::on_update(GameState::Win)
                     .with_system(set_state_button::<GoToMenuButton, { GameState::Menu }>)
-                    .after(ButtonSystem::UpdateButtonInteraction)
+                    .after(ButtonSystem::UpdateButtonInteraction),
             )
-            .add_system_set(
-                SystemSet::on_exit(GameState::Win).with_system(cleanup::<WinUi>),
-            );
+            .add_system_set(SystemSet::on_exit(GameState::Win).with_system(cleanup::<WinUi>));
     }
 }
 
