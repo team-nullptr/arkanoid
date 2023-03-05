@@ -1,9 +1,10 @@
 use bevy::prelude::*;
+use bevy_kira_audio::{Audio, AudioControl};
 use bevy_rapier2d::prelude::*;
 
 use crate::{
     actions::Actions,
-    assets::TextureAssets,
+    assets::{AudioAssets, TextureAssets},
     ball::{Ball, BallResetEvent},
     cursor::FollowCursor,
     lives::Lives,
@@ -127,6 +128,8 @@ fn lose_lives(
     mut lives_query: Query<&mut Lives>,
     ball_query: Query<&Transform, With<Ball>>,
     windows: Res<Windows>,
+    audio: Res<Audio>,
+    audio_assets: Res<AudioAssets>,
     mut ball_reset_event_writer: EventWriter<BallResetEvent>,
 ) {
     let window = windows.get_primary().expect("Primary window not found");
@@ -136,6 +139,10 @@ fn lose_lives(
         for mut lives in lives_query.iter_mut() {
             if lives.lose(1).lives_reached_zero() {
                 let _ = state.set(GameState::GameOver);
+
+                audio.play(audio_assets.lose.clone());
+            } else {
+                audio.play(audio_assets.lose_live.clone());
             }
 
             ball_reset_event_writer.send(BallResetEvent);

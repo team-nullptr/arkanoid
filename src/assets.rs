@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
+use bevy_kira_audio::AudioSource;
 
 use crate::GameState;
 
@@ -24,7 +25,20 @@ pub struct FontAssets {
 }
 
 #[derive(AssetCollection, Resource)]
-pub struct AudioAssets {}
+pub struct AudioAssets {
+    #[asset(path = "audio/bounce.wav")]
+    pub bounce: Handle<AudioSource>,
+    #[asset(path = "audio/block_break.wav")]
+    pub block_break: Handle<AudioSource>,
+    #[asset(path = "audio/block_bounce.wav")]
+    pub block_bounce: Handle<AudioSource>,
+    #[asset(path = "audio/win.wav")]
+    pub win: Handle<AudioSource>,
+    #[asset(path = "audio/lose.wav")]
+    pub lose: Handle<AudioSource>,
+    #[asset(path = "audio/lose_live.wav")]
+    pub lose_live: Handle<AudioSource>,
+}
 
 #[derive(AssetCollection, Resource)]
 pub struct TextureAssets {
