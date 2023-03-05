@@ -15,6 +15,7 @@ mod ball;
 mod block;
 mod camera;
 mod cursor;
+mod level;
 mod lives;
 mod paddle;
 mod score;
@@ -55,6 +56,7 @@ impl Plugin for ArkanoidPlugin {
             .add_plugin(actions::ActionsPlugin)
             .add_plugin(cursor::CursorPlugin)
             .add_plugin(assets::AssetPlugin)
+            .add_plugin(level::LevelPlugin)
             .add_plugin(paddle::PaddlePlugin)
             .add_plugin(ball::BallPlugin)
             .add_plugin(win::WinPlugin)

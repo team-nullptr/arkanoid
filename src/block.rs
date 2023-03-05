@@ -1,6 +1,7 @@
 use crate::{
-    assets::{AudioAssets, TextureAssets},
+    assets::{AudioAssets, LevelAssets, TextureAssets},
     ball::BlockHitEvent,
+    level::{CurrentLevel, LevelAsset},
     score::Score,
     util::cleanup,
     GameState,
@@ -13,7 +14,7 @@ pub struct BlockPlugin;
 
 impl Plugin for BlockPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(SystemSet::on_enter(GameState::Playing).with_system(spawn_block))
+        app.add_system_set(SystemSet::on_enter(GameState::Playing).with_system(load_current_level))
             .add_system_set(SystemSet::on_update(GameState::Playing).with_system(destroy_blocks))
             .add_system_set(SystemSet::on_exit(GameState::GameOver).with_system(cleanup::<Block>))
             .add_system_set(SystemSet::on_exit(GameState::Win).with_system(cleanup::<Block>));
@@ -98,39 +99,61 @@ impl BlockBundle {
     }
 }
 
-fn spawn_block(mut commands: Commands, textures: Res<TextureAssets>, images: Res<Assets<Image>>) {
+fn load_current_level(
+    mut commands: Commands,
+    textures: Res<TextureAssets>,
+    images: Res<Assets<Image>>,
+    level_assets: Res<LevelAssets>,
+    levels: Res<Assets<LevelAsset>>,
+    current_level: Res<CurrentLevel>,
+) {
+    let level = levels.get(&level_assets.levels[current_level.0]).unwrap();
+
+    let level_height = level.tiles.len();
+
     let block_image = images
         .get(&textures.block)
         .expect("Block texture is not loaded");
 
     let block_size = block_image.size() / 2.;
 
-    let blocks_count = IVec2::new(3, 3);
     let block_gap = Vec2::new(10., 10.);
 
-    let blocks_dims = (Vec2::new(
-        blocks_count.x as f32 * block_size.x,
-        blocks_count.y as f32 * block_size.y,
-    ) + Vec2::new(
-        (blocks_count.x - 1) as f32 * block_gap.x,
-        (blocks_count.y - 1) as f32 * block_gap.y,
-    )) / 2.;
+    for i in 0..level_height {
+        let level_physical_height =
+            level_height as f32 * block_size.y + (level_height - 1) as f32 * block_gap.y;
 
-    for i in 0..blocks_count.x {
-        for j in 0..blocks_count.y {
-            let block_type = match j {
-                0 => BlockType::Gold,
-                1 => BlockType::Silver { hits_taken: 0 },
-                _ => BlockType::Orange,
+        let level_width = level.tiles[i].len();
+
+        let level_physical_width =
+            level_width as f32 * block_size.x + (level_width - 1) as f32 * block_gap.x;
+
+        for j in 0..level_width {
+            let block_type = match level.tiles[i][j].as_str() {
+                "silver" => BlockType::Silver { hits_taken: 0 },
+                "gold" => BlockType::Gold,
+                "orange" => BlockType::Orange,
+                "lightblue" => BlockType::LightBlue,
+                "green" => BlockType::Green,
+                "red" => BlockType::Red,
+                "blue" => BlockType::Blue,
+                "pink" => BlockType::Pink,
+                "blank" => continue,
+                _ => panic!("Invalid block type: {}", level.tiles[i][j]),
             };
 
             commands.spawn(
                 BlockBundle::new(block_type, &block_size, textures.block.clone()).with_pos(
-                    (Vec2::new(
-                        (i as f32 + 0.5) * block_size.x - blocks_dims.x,
-                        -(j as f32 + 0.5) * block_size.y + blocks_dims.y,
-                    ) + Vec2::new(i as f32 * block_gap.x, -j as f32 * block_gap.y))
-                        / 2.,
+                    Vec2::new(
+                        -level_physical_width / 2.
+                            + block_size.x / 2.
+                            + j as f32 * block_size.x
+                            + j as f32 * block_gap.x,
+                        level_physical_height / 2.
+                            - block_size.y / 2.
+                            - i as f32 * block_size.y
+                            - i as f32 * block_gap.y,
+                    ) / 2.,
                 ),
             );
         }
@@ -141,6 +164,7 @@ fn destroy_blocks(
     mut commands: Commands,
     mut blocks: Query<&mut Block>,
     mut paddle_points: Query<&mut Score>,
+    current_level: Res<CurrentLevel>,
     audio: Res<Audio>,
     audio_assets: Res<AudioAssets>,
     mut events: EventReader<BlockHitEvent>,
@@ -151,12 +175,11 @@ fn destroy_blocks(
         if let Ok(mut block) = blocks.get_mut(event.0) {
             let block_type = &mut block.block_type;
 
-            // TODO: Add the level number dependant logic later
             let break_block = match block_type {
                 BlockType::Silver { hits_taken } => {
                     *hits_taken += 1;
 
-                    *hits_taken >= 2
+                    *hits_taken >= current_level.0 as u32 / 8 + 2
                 }
                 BlockType::Gold => false,
                 _ => true,
@@ -165,7 +188,7 @@ fn destroy_blocks(
             if break_block {
                 commands.entity(event.0).despawn_recursive();
 
-                **paddle_points += block_type.score(1);
+                **paddle_points += block_type.score(current_level.0 as u32);
 
                 audio.play(audio_assets.block_break.clone());
             } else {
