@@ -170,7 +170,9 @@ mod tests {
 
         update_stage.add_system(paddle_movement);
 
-        let actions = Actions { player_movement: Some(1.0) };
+        let actions = Actions {
+            player_movement: Some(1.0),
+        };
 
         world.insert_resource(actions);
 
@@ -212,7 +214,9 @@ mod tests {
 
         update_stage.add_system(paddle_movement);
 
-        let actions = Actions { player_movement: Some(-1.0) };
+        let actions = Actions {
+            player_movement: Some(-1.0),
+        };
 
         world.insert_resource(actions);
 
