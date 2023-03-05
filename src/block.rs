@@ -1,5 +1,5 @@
 use crate::{
-    assets::{LevelAssets, TextureAssets},
+    assets::{AudioAssets, LevelAssets, TextureAssets},
     ball::BlockHitEvent,
     level::{CurrentLevel, LevelAsset},
     score::Score,
@@ -7,6 +7,7 @@ use crate::{
     GameState,
 };
 use bevy::prelude::*;
+use bevy_kira_audio::{Audio, AudioControl};
 use bevy_rapier2d::prelude::*;
 
 pub struct BlockPlugin;
@@ -159,6 +160,8 @@ fn destroy_blocks(
     mut commands: Commands,
     mut blocks: Query<&mut Block>,
     mut paddle_points: Query<&mut Score>,
+    audio: Res<Audio>,
+    audio_assets: Res<AudioAssets>,
     mut events: EventReader<BlockHitEvent>,
 ) {
     let mut paddle_points = paddle_points.single_mut();
@@ -182,6 +185,10 @@ fn destroy_blocks(
                 commands.entity(event.0).despawn_recursive();
 
                 **paddle_points += block_type.score(1);
+
+                audio.play(audio_assets.block_break.clone());
+            } else {
+                audio.play(audio_assets.block_bounce.clone());
             }
         }
     }

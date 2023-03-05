@@ -1,9 +1,10 @@
 use bevy::prelude::*;
+use bevy_kira_audio::{Audio, AudioControl};
 use bevy_rapier2d::prelude::*;
 
 use crate::{
     actions::Actions,
-    assets::TextureAssets,
+    assets::{AudioAssets, TextureAssets},
     ball::{Ball, BallResetEvent},
     cursor::FollowCursor,
     lives::Lives,
@@ -51,7 +52,7 @@ pub enum PaddleSystem {
 pub struct Paddle;
 
 #[derive(Bundle, Default)]
-struct PaddleBundle {
+pub struct PaddleBundle {
     paddle: Paddle,
     name: Name,
     lives: Lives,
@@ -96,7 +97,7 @@ fn paddle_movement(
         None
     };
 
-    let window = windows.get_primary().expect("No application window found!");
+    let window_width = windows.get_primary().map(|window| window.width());
 
     for (mut paddle_transform, paddle_collider) in paddle_query.iter_mut() {
         if let Some(cursor_position) = cursor_position {
@@ -107,18 +108,20 @@ fn paddle_movement(
 
         paddle_transform.translation.x += direction * PADDLE_SPEED * time.delta_seconds();
 
-        let bound = window.width() / 2.
-            - paddle_collider
-                .as_cuboid()
-                .expect("The paddle collider is not a cuboid!")
-                .half_extents()
-                .x;
+        if let Some(window_width) = window_width {
+            let bound = window_width / 2.
+                - paddle_collider
+                    .as_cuboid()
+                    .expect("The paddle collider is not a cuboid!")
+                    .half_extents()
+                    .x;
 
-        if bound < 0. {
-            panic!("Paddle is too big for the window!");
+            if bound < 0. {
+                panic!("Paddle is too big for the window!");
+            }
+
+            paddle_transform.translation.x = paddle_transform.translation.x.clamp(-bound, bound);
         }
-
-        paddle_transform.translation.x = paddle_transform.translation.x.clamp(-bound, bound);
     }
 }
 
@@ -127,6 +130,8 @@ fn lose_lives(
     mut lives_query: Query<&mut Lives>,
     ball_query: Query<&Transform, With<Ball>>,
     windows: Res<Windows>,
+    audio: Res<Audio>,
+    audio_assets: Res<AudioAssets>,
     mut ball_reset_event_writer: EventWriter<BallResetEvent>,
 ) {
     let window = windows.get_primary().expect("Primary window not found");
@@ -136,9 +141,108 @@ fn lose_lives(
         for mut lives in lives_query.iter_mut() {
             if lives.lose(1).lives_reached_zero() {
                 let _ = state.set(GameState::GameOver);
+
+                audio.play(audio_assets.lose.clone());
+            } else {
+                audio.play(audio_assets.lose_live.clone());
             }
 
             ball_reset_event_writer.send(BallResetEvent);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::time::Duration;
+
+    use super::*;
+
+    #[test]
+    fn right_movement_test() {
+        let mut world = World::new();
+
+        let paddle_x = 0.0;
+
+        world.spawn(PaddleBundle {
+            name: Name::new("Paddle"),
+            sprite: SpriteBundle {
+                transform: Transform::from_xyz(paddle_x, 0.0, 1.0),
+                ..default()
+            },
+            ..default()
+        });
+
+        let mut update_stage = SystemStage::parallel();
+
+        update_stage.add_system(paddle_movement);
+
+        let actions = Actions {
+            player_movement: Some(1.0),
+        };
+
+        world.insert_resource(actions);
+
+        let mut time = Time::default();
+        time.update();
+        world.insert_resource(time);
+
+        world.init_resource::<Windows>();
+
+        let mut time = world.resource_mut::<Time>();
+        let last_update = time.last_update().unwrap();
+        time.update_with_instant(last_update + Duration::from_secs(1));
+
+        update_stage.run(&mut world);
+
+        let paddle_transform = world
+            .query_filtered::<&Transform, With<Paddle>>()
+            .single(&world);
+
+        assert_eq!(paddle_transform.translation.x, paddle_x + PADDLE_SPEED);
+    }
+
+    #[test]
+    fn left_movement_test() {
+        let mut world = World::new();
+
+        let paddle_x = 0.0;
+
+        world.spawn(PaddleBundle {
+            name: Name::new("Paddle"),
+            sprite: SpriteBundle {
+                transform: Transform::from_xyz(paddle_x, 0.0, 1.0),
+                ..default()
+            },
+            ..default()
+        });
+
+        let mut update_stage = SystemStage::parallel();
+
+        update_stage.add_system(paddle_movement);
+
+        let actions = Actions {
+            player_movement: Some(-1.0),
+        };
+
+        world.insert_resource(actions);
+
+        let mut time = Time::default();
+        time.update();
+        world.insert_resource(time);
+
+        world.init_resource::<Windows>();
+
+        let mut time = world.resource_mut::<Time>();
+        let last_update = time.last_update().unwrap();
+        time.update_with_instant(last_update + Duration::from_secs(1));
+
+        update_stage.run(&mut world);
+
+        let paddle_transform = world
+            .query_filtered::<&Transform, With<Paddle>>()
+            .single(&world);
+
+        assert_eq!(paddle_transform.translation.x, paddle_x - PADDLE_SPEED);
     }
 }

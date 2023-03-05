@@ -1,9 +1,10 @@
 use bevy::prelude::*;
+use bevy_kira_audio::{Audio, AudioControl};
 use bevy_rapier2d::prelude::*;
 
 use crate::{
     actions::InputEvent,
-    assets::TextureAssets,
+    assets::{AudioAssets, TextureAssets},
     block::Block,
     paddle::{Paddle, PaddleSystem},
     util::cleanup,
@@ -105,6 +106,7 @@ fn ball_setup(
     });
 }
 
+#[allow(clippy::too_many_arguments)]
 fn ball_movement(
     mut ball_query: Query<(&mut Ball, &Collider, &mut Transform)>,
     paddle_query: Query<(&Transform, &Collider), (With<Paddle>, Without<Block>, Without<Ball>)>,
@@ -112,6 +114,8 @@ fn ball_movement(
     time: Res<Time>,
     windows: Res<Windows>,
     rapier_context: Res<RapierContext>,
+    audio: Res<Audio>,
+    audio_assets: Res<AudioAssets>,
     mut hit_block_event_writer: EventWriter<BlockHitEvent>,
 ) {
     let window = windows.get_primary().expect("No primary window found.");
@@ -190,6 +194,9 @@ fn ball_movement(
                             0.0,
                         );
                     }
+
+                    // Play the sound
+                    audio.play(audio_assets.bounce.clone());
                 }
 
                 // Bounce off the block
@@ -278,5 +285,42 @@ fn ball_reset(
             },
             ..default()
         });
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::assert_matches::assert_matches;
+
+    use crate::paddle::PaddleBundle;
+
+    use super::*;
+
+    #[test]
+    fn ball_state_change_test() {
+        let mut world = World::new();
+
+        world.spawn(PaddleBundle::default());
+        world.spawn(BallBundle::default());
+
+        world.init_resource::<Events<InputEvent>>();
+
+        let mut update_stage = SystemStage::parallel();
+
+        update_stage.add_system(ball_control);
+
+        update_stage.run(&mut world);
+
+        let ball = world.query::<&mut Ball>().single(&world);
+
+        assert_matches!(ball.state, BallState::Glued { percentage: _ });
+
+        world.send_event(InputEvent::PrimaryAction);
+
+        update_stage.run(&mut world);
+
+        let ball = world.query::<&mut Ball>().single(&world);
+
+        assert_eq!(ball.state, BallState::Free);
     }
 }
