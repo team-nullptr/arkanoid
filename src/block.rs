@@ -160,6 +160,7 @@ fn destroy_blocks(
     mut commands: Commands,
     mut blocks: Query<&mut Block>,
     mut paddle_points: Query<&mut Score>,
+    current_level: Res<CurrentLevel>,
     audio: Res<Audio>,
     audio_assets: Res<AudioAssets>,
     mut events: EventReader<BlockHitEvent>,
@@ -170,12 +171,11 @@ fn destroy_blocks(
         if let Ok(mut block) = blocks.get_mut(event.0) {
             let block_type = &mut block.block_type;
 
-            // TODO: Add the level number dependant logic later
             let break_block = match block_type {
                 BlockType::Silver { hits_taken } => {
                     *hits_taken += 1;
 
-                    *hits_taken >= 2
+                    *hits_taken >= current_level.0 as u32 / 8 + 2
                 }
                 BlockType::Gold => false,
                 _ => true,
@@ -184,7 +184,7 @@ fn destroy_blocks(
             if break_block {
                 commands.entity(event.0).despawn_recursive();
 
-                **paddle_points += block_type.score(1);
+                **paddle_points += block_type.score(current_level.0 as u32);
 
                 audio.play(audio_assets.block_break.clone());
             } else {
