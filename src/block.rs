@@ -120,13 +120,13 @@ fn load_current_level(
     let block_gap = Vec2::new(10., 10.);
 
     for i in 0..level_height {
-        let level_physical_height = level_height as f32 * block_size.y
-            + (level_height - 1) as f32 * block_gap.y;
+        let level_physical_height =
+            level_height as f32 * block_size.y + (level_height - 1) as f32 * block_gap.y;
 
         let level_width = level.tiles[i].len();
 
-        let level_physical_width = level_width as f32 * block_size.x
-            + (level_width - 1) as f32 * block_gap.x;
+        let level_physical_width =
+            level_width as f32 * block_size.x + (level_width - 1) as f32 * block_gap.x;
 
         for j in 0..level_width {
             let block_type = match level.tiles[i][j].as_str() {
@@ -145,9 +145,13 @@ fn load_current_level(
             commands.spawn(
                 BlockBundle::new(block_type, &block_size, textures.block.clone()).with_pos(
                     Vec2::new(
-                        -level_physical_width / 2. + block_size.x / 2. + j as f32 * block_size.x
+                        -level_physical_width / 2.
+                            + block_size.x / 2.
+                            + j as f32 * block_size.x
                             + j as f32 * block_gap.x,
-                        level_physical_height / 2. - block_size.y / 2. - i as f32 * block_size.y
+                        level_physical_height / 2.
+                            - block_size.y / 2.
+                            - i as f32 * block_size.y
                             - i as f32 * block_gap.y,
                     ) / 2.,
                 ),

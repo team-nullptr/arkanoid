@@ -8,7 +8,7 @@ use crate::{
 };
 
 use super::{
-    button::{ArkanoidButtonBundle, ButtonSystem, ButtonInteraction},
+    button::{ArkanoidButtonBundle, ButtonInteraction, ButtonSystem},
     set_state_button,
 };
 
