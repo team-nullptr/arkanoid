@@ -1,0 +1,7 @@
+{
+	"tiles": [
+		["gold", "blank", "gold"],
+		["gold", "pink", "gold"],
+		["gold", "gold", "gold"]
+	]
+}
