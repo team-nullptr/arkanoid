@@ -19,9 +19,10 @@ mod ui;
 mod util;
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash)]
-enum GameState {
+pub enum GameState {
     Loading,
     Menu,
+    Help,
     Playing,
     GameOver,
 }
