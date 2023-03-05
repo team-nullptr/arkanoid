@@ -10,3 +10,7 @@ An Arkanoid clone made in the Bevy game engine.
 4. Clone this repository.
 5. Run `cargo build` in the repository directory.
 6. Alternatively, run `cargo run` to build and run the built program.
+
+## How to test
+
+After installing everything from the previous section, run `cargo test` in the repository directory.
