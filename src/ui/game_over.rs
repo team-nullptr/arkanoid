@@ -2,7 +2,10 @@ use bevy::prelude::*;
 
 use crate::{assets::FontAssets, util::cleanup, GameState};
 
-use super::{button::{ArkanoidButtonBundle, ButtonSystem}, set_state_button};
+use super::{
+    button::{ArkanoidButtonBundle, ButtonSystem},
+    set_state_button,
+};
 
 pub struct GameOverPlugin;
 

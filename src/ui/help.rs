@@ -13,9 +13,12 @@ pub struct HelpPlugin;
 impl Plugin for HelpPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<HelpUi>()
-			.register_type::<GoToMenuButton>()
+            .register_type::<GoToMenuButton>()
             .add_system_set(SystemSet::on_enter(GameState::Help).with_system(setup_help_ui))
-            .add_system_set(SystemSet::on_update(GameState::Help).with_system(set_state_button::<GoToMenuButton, { GameState::Menu }>))
+            .add_system_set(
+                SystemSet::on_update(GameState::Help)
+                    .with_system(set_state_button::<GoToMenuButton, { GameState::Menu }>),
+            )
             .add_system_set(SystemSet::on_exit(GameState::Help).with_system(cleanup::<HelpUi>));
     }
 }
