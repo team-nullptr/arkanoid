@@ -9,6 +9,7 @@ pub mod game_over;
 pub mod help;
 pub mod in_game;
 pub mod menu;
+pub mod win;
 
 pub struct UiPlugin;
 
@@ -18,7 +19,8 @@ impl Plugin for UiPlugin {
             .add_plugin(in_game::InGameUiPlugin)
             .add_plugin(menu::MenuPlugin)
             .add_plugin(help::HelpPlugin)
-            .add_plugin(game_over::GameOverPlugin);
+            .add_plugin(game_over::GameOverPlugin)
+            .add_plugin(win::WinUiPlugin);
     }
 }
 

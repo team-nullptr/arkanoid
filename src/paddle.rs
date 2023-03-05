@@ -31,6 +31,10 @@ impl Plugin for PaddlePlugin {
         .add_system_set(
             SystemSet::on_exit(GameState::GameOver)
                 .with_system(cleanup::<Paddle>.label(PaddleSystem::Cleanup)),
+        )
+        .add_system_set(
+            SystemSet::on_exit(GameState::Win)
+                .with_system(cleanup::<Paddle>.label(PaddleSystem::Cleanup)),
         );
     }
 }
