@@ -1,4 +1,4 @@
-use crate::{assets::TextureAssets, ball::BlockHitEvent, score::Score, util::cleanup, GameState};
+use crate::{assets::{TextureAssets, LevelAssets}, ball::BlockHitEvent, score::Score, util::cleanup, GameState, level::LevelAsset};
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
@@ -91,7 +91,9 @@ impl BlockBundle {
     }
 }
 
-fn spawn_block(mut commands: Commands, textures: Res<TextureAssets>, images: Res<Assets<Image>>) {
+fn spawn_block(mut commands: Commands, textures: Res<TextureAssets>, images: Res<Assets<Image>>, level_assets: Res<LevelAssets>, levels: Res<Assets<LevelAsset>>) {
+    println!("{:?}", levels.get(&level_assets.level1));
+
     let block_image = images
         .get(&textures.block)
         .expect("Block texture is not loaded");

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
 
-use crate::GameState;
+use crate::{GameState, level::LevelAsset};
 
 pub struct AssetPlugin;
 
@@ -12,6 +12,7 @@ impl Plugin for AssetPlugin {
                 .with_collection::<FontAssets>()
                 .with_collection::<AudioAssets>()
                 .with_collection::<TextureAssets>()
+                .with_collection::<LevelAssets>()
                 .continue_to_state(GameState::Menu),
         );
     }
@@ -50,4 +51,10 @@ pub struct TextureAssets {
     pub space_icon: Handle<Image>,
     #[asset(path = "img/input-icons/Mouse_Left_Key_Light.png")]
     pub left_mouse_button_icon: Handle<Image>,
+}
+
+#[derive(AssetCollection, Resource)]
+pub struct LevelAssets {
+    #[asset(path = "levels/level1.lvl")]
+    pub level1: Handle<LevelAsset>,
 }
