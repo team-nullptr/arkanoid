@@ -44,7 +44,6 @@ impl Plugin for ArkanoidPlugin {
                 ..default()
             }))
             .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(4.))
-            .add_plugin(WorldInspectorPlugin)
             .add_plugin(camera::CameraPlugin)
             .add_plugin(actions::ActionsPlugin)
             .add_plugin(cursor::CursorPlugin)
@@ -56,5 +55,10 @@ impl Plugin for ArkanoidPlugin {
             .add_plugin(ui::UiPlugin)
             .add_plugin(block::BlockPlugin)
             .add_state(GameState::Loading);
+
+        // Debug-only plugins
+        if cfg!(debug_assertions) {
+            app.add_plugin(WorldInspectorPlugin);
+        }
     }
 }
