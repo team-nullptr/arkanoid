@@ -1,0 +1,9 @@
+{
+	"tiles": [
+		["silver", "blue", "lightblue", "red", "lightblue"],
+		["silver", "green", "pink", "green", "silver"],
+		["blank", "silver", "silver", "silver", "blank"],
+		["silver", "silver", "green", "silver", "silver"]
+		["red", "lightblue", "gold", "lightblue", "red"],
+	]
+}
