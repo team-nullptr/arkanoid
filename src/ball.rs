@@ -1,9 +1,10 @@
 use bevy::prelude::*;
+use bevy_kira_audio::{Audio, AudioControl};
 use bevy_rapier2d::prelude::*;
 
 use crate::{
     actions::InputEvent,
-    assets::TextureAssets,
+    assets::{AudioAssets, TextureAssets},
     block::Block,
     paddle::{Paddle, PaddleSystem},
     util::cleanup,
@@ -105,6 +106,7 @@ fn ball_setup(
     });
 }
 
+#[allow(clippy::too_many_arguments)]
 fn ball_movement(
     mut ball_query: Query<(&mut Ball, &Collider, &mut Transform)>,
     paddle_query: Query<(&Transform, &Collider), (With<Paddle>, Without<Block>, Without<Ball>)>,
@@ -112,6 +114,8 @@ fn ball_movement(
     time: Res<Time>,
     windows: Res<Windows>,
     rapier_context: Res<RapierContext>,
+    audio: Res<Audio>,
+    audio_assets: Res<AudioAssets>,
     mut hit_block_event_writer: EventWriter<BlockHitEvent>,
 ) {
     let window = windows.get_primary().expect("No primary window found.");
@@ -190,6 +194,9 @@ fn ball_movement(
                             0.0,
                         );
                     }
+
+                    // Play the sound
+                    audio.play(audio_assets.bounce.clone());
                 }
 
                 // Bounce off the block

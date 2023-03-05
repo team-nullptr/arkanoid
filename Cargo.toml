@@ -25,3 +25,4 @@ bevy = "0.9.1"
 bevy_asset_loader = "0.14.1"
 bevy_rapier2d = "0.20.0"
 bevy-inspector-egui = "0.17.0"
+bevy_kira_audio = { version = "0.14.0", features = [ "wav", "flac", "mp3", "ogg" ] }
