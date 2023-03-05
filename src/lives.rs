@@ -103,8 +103,8 @@ mod tests {
 
         assert_eq!(lives.lives, 3);
 
-        assert_eq!(lives.lose(1).lives_reached_zero(), false);
+        assert!(!lives.lose(1).lives_reached_zero());
 
-        assert_eq!(lives.lose(2).lives_reached_zero(), true);
+        assert!(lives.lose(2).lives_reached_zero());
     }
 }
