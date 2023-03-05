@@ -4,7 +4,7 @@ use bevy_rapier2d::prelude::*;
 
 use crate::{
     actions::InputEvent,
-    assets::{TextureAssets, AudioAssets},
+    assets::{AudioAssets, TextureAssets},
     block::Block,
     paddle::{Paddle, PaddleSystem},
     util::cleanup,

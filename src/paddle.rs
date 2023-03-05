@@ -4,7 +4,7 @@ use bevy_rapier2d::prelude::*;
 
 use crate::{
     actions::Actions,
-    assets::{TextureAssets, AudioAssets},
+    assets::{AudioAssets, TextureAssets},
     ball::{Ball, BallResetEvent},
     cursor::FollowCursor,
     lives::Lives,
