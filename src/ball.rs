@@ -106,6 +106,7 @@ fn ball_setup(
     });
 }
 
+#[allow(clippy::too-many-arguments-threshold)]
 fn ball_movement(
     mut ball_query: Query<(&mut Ball, &Collider, &mut Transform)>,
     paddle_query: Query<(&Transform, &Collider), (With<Paddle>, Without<Block>, Without<Ball>)>,
