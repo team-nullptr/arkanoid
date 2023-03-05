@@ -1,6 +1,6 @@
 # Arkanoid
 
-An Arkanoid clone made in the Bevy game engine.
+An Arkanoid clone made in the Bevy game engine. You can download the latest release [here](https://github.com/team-nullptr/arkanoid/releases/tag/v1.0.0).
 
 ## How to build
 
