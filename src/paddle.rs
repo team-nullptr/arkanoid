@@ -141,6 +141,8 @@ fn lose_lives(
                 let _ = state.set(GameState::GameOver);
 
                 audio.play(audio_assets.lose.clone());
+            } else {
+                audio.play(audio_assets.lose_live.clone());
             }
 
             ball_reset_event_writer.send(BallResetEvent);
