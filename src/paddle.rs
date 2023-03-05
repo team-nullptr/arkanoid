@@ -51,7 +51,7 @@ pub enum PaddleSystem {
 pub struct Paddle;
 
 #[derive(Bundle, Default)]
-struct PaddleBundle {
+pub struct PaddleBundle {
     paddle: Paddle,
     name: Name,
     lives: Lives,

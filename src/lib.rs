@@ -1,6 +1,8 @@
 #![allow(incomplete_features)]
 // WARNING: Be careful with this, it can cause compiler crashes.
 #![feature(adt_const_params)]
+// WARNING: Be careful with this, it is an unstable feature.
+#![feature(assert_matches)]
 
 use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
